@@ -43,22 +43,22 @@ endif()
 
 # Server core source files
 set(FLASH_CORE_SOURCES
-    cpp/src/server.cpp
+    src/server.cpp
+    src/http_parser.cpp
+    src/http_request.cpp
     # TODO: Add more source files as you create them
-    # cpp/src/http_parser.cpp
-    # cpp/src/http_request.cpp
-    # cpp/src/http_response.cpp
-    # cpp/src/connection.cpp
+    # src/http_response.cpp
+    # src/connection.cpp
 )
 
 # Server core header files (for IDE support)
 set(FLASH_CORE_HEADERS
-    cpp/include/server.h
+    include/server.h
+    include/http_parser.h
+    include/http_request.h
     # TODO: Add more header files as you create them
-    # cpp/include/http_parser.h
-    # cpp/include/http_request.h
-    # cpp/include/http_response.h
-    # cpp/include/connection.h
+    # include/http_response.h
+    # include/connection.h
 )
 
 # ============================================================================
@@ -68,14 +68,14 @@ set(FLASH_CORE_HEADERS
 add_library(flash_core STATIC ${FLASH_CORE_SOURCES} ${FLASH_CORE_HEADERS})
 
 target_include_directories(flash_core PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/cpp/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
 # ============================================================================
 # Executable Target - Standalone Server
 # ============================================================================
 
-add_executable(flash_server cpp/src/main.cpp)
+add_executable(flash_server src/main.cpp)
 
 target_link_libraries(flash_server PRIVATE flash_core)
 
@@ -101,10 +101,10 @@ enable_testing()
 
 # Test source files
 set(FLASH_TEST_SOURCES
-    cpp/tests/test_server.cpp
+    tests/test_server.cpp
+    tests/test_http_parser.cpp
     # TODO: Add more test files as you create them
-    # cpp/tests/test_http_parser.cpp
-    # cpp/tests/test_http_response.cpp
+    # tests/test_http_response.cpp
 )
 
 # Test executable

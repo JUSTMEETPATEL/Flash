@@ -9,10 +9,8 @@ export class Flash {
 
   constructor(options: FlashOptions = {}) {
     this.options = {
-      workers: 2,
-      port: 3000,
-      ...options,
-    };
+      // Default options
+      port: 5627,
   }
 
   get(path: string, handler: RouteHandler): this {
@@ -36,7 +34,8 @@ export class Flash {
   }
 
   listen(port?: number, callback?: () => void): void {
-    const serverPort = port || this.options.port || 3000;
+        // Start the C++ server
+    const serverPort = port || this.options.port || 5627;
 
     this.server = http.createServer((req, res) => {
       this.handleRequest(req, res);

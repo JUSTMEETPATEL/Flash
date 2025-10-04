@@ -4,14 +4,14 @@
 
 ## Document Information
 
-| Field | Value |
-| --- | --- |
-| **Product Name** | Flash Framework (Learning Edition) |
-| **Version** | 0.1.0-alpha |
-| **Author** | Meet Patel |
-| **Created** | October 4, 2025 |
-| **Status** | Learning Phase - Foundation Building |
-| **Target Completion** | Nov 2025 (1 months) |
+| Field                 | Value                                |
+| --------------------- | ------------------------------------ |
+| **Product Name**      | Flash Framework (Learning Edition)   |
+| **Version**           | 0.1.0-alpha                          |
+| **Author**            | Meet Patel                           |
+| **Created**           | October 4, 2025                      |
+| **Status**            | Learning Phase - Foundation Building |
+| **Target Completion** | Nov 2025 (1 months)                  |
 
 ---
 
@@ -61,13 +61,13 @@ Build a **minimal viable learning framework** that demonstrates:
 
 ### 2.3 Success Metrics
 
-| Metric | Target | Measurement |
-| --- | --- | --- |
-| Requests/second | 10,000+ | Apache Bench / wrk |
-| Latency (p99) | < 10ms | Load testing |
-| Memory usage | < 100MB | Profiling tools |
-| Code quality | 80%+ test coverage | Jest + Google Test |
-| Developer experience | < 5 min setup | User testing |
+| Metric               | Target             | Measurement        |
+| -------------------- | ------------------ | ------------------ |
+| Requests/second      | 10,000+            | Apache Bench / wrk |
+| Latency (p99)        | < 10ms             | Load testing       |
+| Memory usage         | < 100MB            | Profiling tools    |
+| Code quality         | 80%+ test coverage | Jest + Google Test |
+| Developer experience | < 5 min setup      | User testing       |
 
 ---
 
@@ -158,17 +158,16 @@ Build a **minimal viable learning framework** that demonstrates:
 **Acceptance Criteria:**
 
 ```tsx
-import { Flash } from 'flash-framework';
+import { Flash } from "flash-framework";
 
 const app = new Flash({ workers: 4 });
 
-app.get('/users/:id', async (req, res) => {
+app.get("/users/:id", async (req, res) => {
   const user = await db.getUser(req.params.id);
   res.json(user);
 });
 
-await app.listen(3000);
-
+await app.listen(5627);
 ```
 
 ### 4.1.4 Worker Thread Pool
@@ -296,16 +295,16 @@ await app.listen(3000);
 
 ### 6.2 Technology Stack
 
-| Layer | Technology | Justification |
-| --- | --- | --- |
-| Core Engine | C++20 | Modern features, performance |
-| Async I/O | kqueue (macOS) | Native OS support |
-| HTTP Parser | Custom (llhttp later) | Learning exercise |
-| Bridge | N-API | Stable, version-independent |
-| API Layer | TypeScript 5.x | Type safety, DX |
-| Build System | CMake + node-gyp | Cross-platform |
-| Testing | Google Test + Jest | Per-layer testing |
-| Benchmarking | wrk | Industry standard |
+| Layer        | Technology            | Justification                |
+| ------------ | --------------------- | ---------------------------- |
+| Core Engine  | C++20                 | Modern features, performance |
+| Async I/O    | kqueue (macOS)        | Native OS support            |
+| HTTP Parser  | Custom (llhttp later) | Learning exercise            |
+| Bridge       | N-API                 | Stable, version-independent  |
+| API Layer    | TypeScript 5.x        | Type safety, DX              |
+| Build System | CMake + node-gyp      | Cross-platform               |
+| Testing      | Google Test + Jest    | Per-layer testing            |
+| Benchmarking | wrk                   | Industry standard            |
 
 ### 6.3 Project Structure
 
@@ -360,18 +359,21 @@ flash-framework/
 The project includes comprehensive Docker support for both development and production:
 
 #### Development Container
+
 - Multi-stage Dockerfile with separate C++ and Node.js build stages
 - Hot reload support for TypeScript development
 - Pre-installed build tools and dependencies
 - Consistent development environment across platforms
 
 #### Production Container
+
 - Minimal runtime image with only necessary dependencies
 - Optimized for performance and security
 - Health checks and proper signal handling
 - Ready for deployment to any container platform
 
 #### Docker Compose Setup
+
 - Development environment with Redis (optional caching)
 - Benchmarking environment for performance testing
 - Production-like deployment configuration
@@ -386,11 +388,11 @@ The project includes comprehensive Docker support for both development and produ
 
 **Deliverables:**
 
-- [ ]  C++ TCP server accepting connections
-- [ ]  Basic HTTP request parser
-- [ ]  HTTP response builder
-- [ ]  Simple echo server working
-- [ ]  Manual testing with curl
+- [ ] C++ TCP server accepting connections
+- [ ] Basic HTTP request parser
+- [ ] HTTP response builder
+- [ ] Simple echo server working
+- [ ] Manual testing with curl
 
 **Milestone:** Can handle GET requests and return static responses
 
@@ -400,11 +402,11 @@ The project includes comprehensive Docker support for both development and produ
 
 **Deliverables:**
 
-- [ ]  N-API module compiles successfully
-- [ ]  TypeScript can start/stop C++ server
-- [ ]  Simple route registration from TypeScript
-- [ ]  Request data flows from C++ → TypeScript → C++
-- [ ]  Error handling across boundary
+- [ ] N-API module compiles successfully
+- [ ] TypeScript can start/stop C++ server
+- [ ] Simple route registration from TypeScript
+- [ ] Request data flows from C++ → TypeScript → C++
+- [ ] Error handling across boundary
 
 **Milestone:** TypeScript "Hello World" route works end-to-end
 
@@ -414,11 +416,11 @@ The project includes comprehensive Docker support for both development and produ
 
 **Deliverables:**
 
-- [ ]  C++ thread pool implementation
-- [ ]  Work queue with load balancing
-- [ ]  Parallel request processing
-- [ ]  Thread-safe data structures
-- [ ]  Graceful shutdown
+- [ ] C++ thread pool implementation
+- [ ] Work queue with load balancing
+- [ ] Parallel request processing
+- [ ] Thread-safe data structures
+- [ ] Graceful shutdown
 
 **Milestone:** Can handle 1000 concurrent requests
 
@@ -428,11 +430,11 @@ The project includes comprehensive Docker support for both development and produ
 
 **Deliverables:**
 
-- [ ]  Express-like routing API
-- [ ]  Middleware support
-- [ ]  TypeScript types for Request/Response
-- [ ]  Route parameters and query strings
-- [ ]  JSON body parsing
+- [ ] Express-like routing API
+- [ ] Middleware support
+- [ ] TypeScript types for Request/Response
+- [ ] Route parameters and query strings
+- [ ] JSON body parsing
 
 **Milestone:** Can build simple REST API easily
 
@@ -442,11 +444,11 @@ The project includes comprehensive Docker support for both development and produ
 
 **Deliverables:**
 
-- [ ]  Comprehensive test suite
-- [ ]  Performance benchmarks
-- [ ]  Memory leak testing
-- [ ]  Optimization based on profiling
-- [ ]  Documentation
+- [ ] Comprehensive test suite
+- [ ] Performance benchmarks
+- [ ] Memory leak testing
+- [ ] Optimization based on profiling
+- [ ] Documentation
 
 **Milestone:** Meets all performance targets
 
@@ -456,11 +458,11 @@ The project includes comprehensive Docker support for both development and produ
 
 **Deliverables:**
 
-- [ ]  Example applications
-- [ ]  Complete documentation
-- [ ]  Error messages improved
-- [ ]  Developer experience refined
-- [ ]  Published to GitHub
+- [ ] Example applications
+- [ ] Complete documentation
+- [ ] Error messages improved
+- [ ] Developer experience refined
+- [ ] Published to GitHub
 
 **Milestone:** Others can use it for learning
 
@@ -479,11 +481,13 @@ The project includes comprehensive Docker support for both development and produ
 ### 8.2 Development Environment Options
 
 #### Option 1: Native Development
+
 - Install all dependencies locally (Node.js, CMake, C++ compiler)
 - Best for development and debugging
 - Platform: macOS (primary), Linux (secondary)
 
 #### Option 2: Docker Development
+
 - Use Docker containers for isolated development
 - Consistent environment across machines
 - Includes all build tools pre-configured
@@ -498,13 +502,13 @@ The project includes comprehensive Docker support for both development and produ
 
 ### 8.3 Risks & Mitigations
 
-| Risk | Impact | Probability | Mitigation |
-| --- | --- | --- | --- |
-| N-API complexity too high | High | Medium | Start with simple examples, ask community |
-| C++ networking too difficult | High | Low | Follow established patterns, use libuv if stuck |
-| Performance not better than Node | Medium | Low | Profile early, optimize hot paths |
-| Scope creep to advanced features | High | High | Strict adherence to Phase 1 scope |
-| Memory leaks hard to debug | Medium | Medium | Use sanitizers early, test frequently |
+| Risk                             | Impact | Probability | Mitigation                                      |
+| -------------------------------- | ------ | ----------- | ----------------------------------------------- |
+| N-API complexity too high        | High   | Medium      | Start with simple examples, ask community       |
+| C++ networking too difficult     | High   | Low         | Follow established patterns, use libuv if stuck |
+| Performance not better than Node | Medium | Low         | Profile early, optimize hot paths               |
+| Scope creep to advanced features | High   | High        | Strict adherence to Phase 1 scope               |
+| Memory leaks hard to debug       | Medium | Medium      | Use sanitizers early, test frequently           |
 
 ---
 
@@ -542,26 +546,26 @@ The project includes comprehensive Docker support for both development and produ
 
 ### 10.1 User Documentation
 
-- [ ]  README with quick start
-- [ ]  Getting Started guide
-- [ ]  API Reference
-- [ ]  Examples and tutorials
-- [ ]  Troubleshooting guide
+- [ ] README with quick start
+- [ ] Getting Started guide
+- [ ] API Reference
+- [ ] Examples and tutorials
+- [ ] Troubleshooting guide
 
 ### 10.2 Developer Documentation
 
-- [ ]  Architecture overview
-- [ ]  Code organization
-- [ ]  Build instructions
-- [ ]  Contributing guide
-- [ ]  Testing guide
+- [ ] Architecture overview
+- [ ] Code organization
+- [ ] Build instructions
+- [ ] Contributing guide
+- [ ] Testing guide
 
 ### 10.3 Learning Documentation
 
-- [ ]  Learning journal (blog posts)
-- [ ]  Architecture decisions log
-- [ ]  Performance optimization notes
-- [ ]  Lessons learned
+- [ ] Learning journal (blog posts)
+- [ ] Architecture decisions log
+- [ ] Performance optimization notes
+- [ ] Lessons learned
 
 ---
 
@@ -632,16 +636,16 @@ The project includes comprehensive Docker support for both development and produ
 
 ### 13.3 Change Log
 
-| Date | Version | Changes |
-| --- | --- | --- |
-| 2025-10-04 | 0.1.0 | Initial PRD created |
+| Date       | Version | Changes             |
+| ---------- | ------- | ------------------- |
+| 2025-10-04 | 0.1.0   | Initial PRD created |
 
 ---
 
 **Approval Sign-off:**
 
-- [x]  Developer (You): Agreed to scope and timeline
-- [x]  Ready to begin implementation
+- [x] Developer (You): Agreed to scope and timeline
+- [x] Ready to begin implementation
 
 **Next Steps:**
 

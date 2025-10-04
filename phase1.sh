@@ -100,7 +100,7 @@ case $COMMAND in
             exit 1
         fi
         
-        PORT=${2:-3000}
+        PORT=${2:-5627}
         print_info "Starting server on port $PORT..."
         print_info "Press Ctrl+C to stop"
         print_info ""
@@ -135,7 +135,7 @@ case $COMMAND in
         echo "  test           - Run unit tests"
         echo "  test-verbose   - Run tests with verbose output"
         echo "  leaks          - Run tests with memory leak detection"
-        echo "  run [port]     - Start server (default port: 3000)"
+        echo "  run [port]     - Start server (default port: 5627)"
         echo "  clean          - Remove build directory"
         echo "  rebuild        - Clean and rebuild"
         echo "  help           - Show this help"

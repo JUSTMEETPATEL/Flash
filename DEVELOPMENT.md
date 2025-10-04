@@ -46,7 +46,7 @@ This will:
 
 ### 3. Access Your Application
 
-- **Server**: http://localhost:3000
+- **Server**: http://localhost:5627
 - **Debug Port**: localhost:9229
 - **Redis**: localhost:6379 (if enabled)
 

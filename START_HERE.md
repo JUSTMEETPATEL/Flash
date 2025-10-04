@@ -57,8 +57,8 @@ Build a working C++ HTTP server in 4 weeks:
 ### Success = This Works:
 
 ```bash
-./build/flash_server 3000
-curl http://localhost:3000/
+./build/flash_server 5627
+curl http://localhost:5627/
 # → Gets HTTP response!
 ```
 
@@ -116,7 +116,7 @@ setsockopt(socket_fd_, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 ./phase1.sh test
 
 # Start server
-./phase1.sh run 3000
+./phase1.sh run 5627
 
 # Check for memory leaks
 ./phase1.sh leaks
@@ -137,7 +137,7 @@ make -j$(sysctl -n hw.ncpu)
 ./flash_tests
 
 # Run server
-./flash_server 3000
+./flash_server 5627
 ```
 
 ### Using npm Scripts
@@ -168,8 +168,8 @@ npm run test:cpp
 
 ### Testing
 
-- Use: `telnet localhost 3000` (test raw TCP)
-- Use: `curl http://localhost:3000/` (test HTTP)
+- Use: `telnet localhost 5627` (test raw TCP)
+- Use: `curl http://localhost:5627/` (test HTTP)
 - Debug: `lldb ./build/flash_server` (debug crashes)
 
 ---
@@ -224,9 +224,8 @@ npm run test:cpp
 
 ### "Address already in use"
 
-```bash
-lsof -ti:3000 | xargs kill -9
-```
+````bash
+lsof -ti:5627 | xargs kill -9
 
 **Fix:** Add `SO_REUSEADDR` in constructor
 
@@ -234,7 +233,7 @@ lsof -ti:3000 | xargs kill -9
 
 ```bash
 ./phase1.sh rebuild
-```
+````
 
 **Check:** C++20 flag in CMakeLists.txt
 

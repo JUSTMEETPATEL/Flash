@@ -54,7 +54,7 @@ make docker-dev
 docker-compose up dev
 
 # Access points:
-# - Server: http://localhost:3000
+# - Server: http://localhost:5627
 # - Debug: localhost:9229
 # - Redis: localhost:6379
 ```

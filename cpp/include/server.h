@@ -40,7 +40,7 @@ namespace flash {
  * EXAMPLE USAGE:
  * @code
  * try {
- *     HttpServer server(3000);
+ *     HttpServer server(5627);
  *     server.start();  // Blocks until shutdown
  * } catch (const std::exception& e) {
  *     std::cerr << "Server error: " << e.what() << std::endl;

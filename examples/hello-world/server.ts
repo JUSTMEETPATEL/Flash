@@ -1,29 +1,29 @@
-import { Flash } from '../../src';
+import { Flash } from "../../src";
 
 const app = new Flash({ workers: 2 });
 
-app.get('/', (req, res) => {
+app.get("/", (req, res) => {
   res.json({
-    message: 'Hello from Flash Framework!',
+    message: "Hello from Flash Framework!",
     timestamp: new Date().toISOString(),
-    version: '0.1.0-alpha'
+    version: "0.1.0-alpha",
   });
 });
 
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', uptime: process.uptime() });
+app.get("/health", (req, res) => {
+  res.json({ status: "ok", uptime: process.uptime() });
 });
 
-app.get('/api/users/:id', (req, res) => {
+app.get("/api/users/:id", (req, res) => {
   const userId = req.params.id;
   res.json({
     id: userId,
     name: `User ${userId}`,
-    email: `user${userId}@example.com`
+    email: `user${userId}@example.com`,
   });
 });
 
-const port = parseInt(process.env.PORT || '3000', 10);
+const port = parseInt(process.env.PORT || "5627", 10);
 app.listen(port, () => {
   console.log(`🚀 Flash server running on http://localhost:${port}`);
   console.log(`📊 Health check: http://localhost:${port}/health`);

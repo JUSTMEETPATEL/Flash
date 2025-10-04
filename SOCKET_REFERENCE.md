@@ -38,7 +38,7 @@ setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 struct sockaddr_in address;
 address.sin_family = AF_INET;
 address.sin_addr.s_addr = INADDR_ANY;  // Listen on all interfaces
-address.sin_port = htons(3000);         // Port 3000 (network byte order)
+address.sin_port = htons(5627);         // Port 5627 (network byte order)
 
 int result = bind(socket_fd, (struct sockaddr*)&address, sizeof(address));
 ```
@@ -183,7 +183,7 @@ setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 struct sockaddr_in address;
 address.sin_family = AF_INET;
 address.sin_addr.s_addr = INADDR_ANY;
-address.sin_port = htons(3000);
+address.sin_port = htons(5627);
 
 // 4. Bind to address
 if (bind(server_fd, (struct sockaddr*)&address, sizeof(address)) < 0) {
@@ -235,7 +235,7 @@ close(server_fd);
 
 ```
 GET /index.html HTTP/1.1\r\n
-Host: localhost:3000\r\n
+Host: localhost:5627\r\n
 User-Agent: curl/7.64.1\r\n
 Accept: */*\r\n
 \r\n

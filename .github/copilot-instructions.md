@@ -35,16 +35,16 @@ class HttpServer {
 public:
     HttpServer(int port, int worker_count);
     ~HttpServer();
-    
+
     // Use explicit for single-arg constructors
     explicit HttpServer(int port);
-    
+
     // Prefer unique_ptr, use shared_ptr only when needed
     std::unique_ptr<Connection> accept_connection();
-    
+
     // Use const correctness
     int get_port() const;
-    
+
 private:
     int port_;
     int worker_count_;
@@ -55,6 +55,7 @@ private:
 ```
 
 **Key Rules:**
+
 - ✅ Use modern C++20 features (smart pointers, auto, lambdas)
 - ✅ RAII for all resources (no manual delete)
 - ✅ const correctness everywhere
@@ -72,7 +73,7 @@ private:
 // File: src/router.ts
 // Use: PascalCase for classes/interfaces, camelCase for functions/variables
 
-import { Request, Response } from './types';
+import { Request, Response } from "./types";
 
 export interface RouteHandler {
   (req: Request, res: Response): Promise<void> | void;
@@ -80,18 +81,18 @@ export interface RouteHandler {
 
 export class Router {
   private routes: Map<string, RouteHandler> = new Map();
-  
+
   // Use async/await, not .then()
   public async handleRequest(req: Request, res: Response): Promise<void> {
     const handler = this.routes.get(req.path);
     if (!handler) {
-      res.status(404).json({ error: 'Not Found' });
+      res.status(404).json({ error: "Not Found" });
       return;
     }
-    
+
     await handler(req, res);
   }
-  
+
   // Method chaining for DX
   public get(path: string, handler: RouteHandler): this {
     this.routes.set(path, handler);
@@ -101,6 +102,7 @@ export class Router {
 ```
 
 **Key Rules:**
+
 - ✅ Strict TypeScript (`strict: true` in tsconfig)
 - ✅ Explicit return types for public APIs
 - ✅ Use interfaces for public contracts
@@ -124,11 +126,11 @@ class ServerWrap : public Napi::ObjectWrap<ServerWrap> {
 public:
     static Napi::Object Init(Napi::Env env, Napi::Object exports);
     ServerWrap(const Napi::CallbackInfo& info);
-    
+
 private:
     // Always validate arguments from JavaScript
     Napi::Value Start(const Napi::CallbackInfo& info);
-    
+
     // Use AsyncWorker for long-running operations
     class StartWorker : public Napi::AsyncWorker {
     public:
@@ -138,12 +140,13 @@ private:
     private:
         HttpServer* server_;
     };
-    
+
     std::unique_ptr<HttpServer> server_;
 };
 ```
 
 **Key Rules:**
+
 - ✅ Always check JavaScript argument types/count
 - ✅ Use `Napi::AsyncWorker` for any blocking operations
 - ✅ Proper error handling with `Napi::Error::New()`
@@ -179,6 +182,7 @@ flash/
 ```
 
 **When creating new files:**
+
 - C++ headers → `cpp/include/`
 - C++ implementation → `cpp/src/`
 - N-API bindings → `cpp/binding/`
@@ -192,22 +196,24 @@ flash/
 ### When Writing C++ Code
 
 1. **Always consider performance:**
+
    ```cpp
    // GOOD: Pass large objects by const reference
    void process_request(const HttpRequest& req);
-   
+
    // BAD: Pass large objects by value (copies)
    void process_request(HttpRequest req);
    ```
 
 2. **Thread safety is critical:**
+
    ```cpp
    // Always document thread safety
    class ConnectionPool {
    public:
        // Thread-safe: Uses internal mutex
        Connection* acquire();
-       
+
        // NOT thread-safe: Caller must lock
        size_t unsafe_size() const;
    private:
@@ -217,10 +223,11 @@ flash/
    ```
 
 3. **Error handling:**
+
    ```cpp
    // Use std::optional for operations that might fail
    std::optional<HttpRequest> parse_request(const std::string& raw);
-   
+
    // Use exceptions for unexpected errors
    void connect(const std::string& host) {
        if (host.empty()) {
@@ -232,37 +239,35 @@ flash/
 ### When Writing TypeScript Code
 
 1. **API design should be intuitive:**
+
    ```typescript
    // GOOD: Clear, chainable API
-   app
-     .get('/users', getAllUsers)
-     .post('/users', createUser)
-     .listen(3000);
-   
-   // BAD: Confusing, unclear
-   app.addRoute('GET', '/users', getAllUsers);
-   app.addRoute('POST', '/users', createUser);
+   app.get("/users", getAllUsers).post("/users", createUser).listen(5627); // BAD: Confusing, unclear
+   app.addRoute("GET", "/users", getAllUsers);
+   app.addRoute("POST", "/users", createUser);
    app.startServer(3000);
    ```
 
 2. **Type safety everywhere:**
+
    ```typescript
    // GOOD: Explicit types
    interface RouteParams {
      id: string;
    }
-   
-   app.get<RouteParams>('/users/:id', (req, res) => {
+
+   app.get<RouteParams>("/users/:id", (req, res) => {
      const id = req.params.id; // TypeScript knows this exists
    });
-   
+
    // BAD: No type safety
-   app.get('/users/:id', (req: any, res: any) => {
+   app.get("/users/:id", (req: any, res: any) => {
      const id = req.params.id; // No IntelliSense
    });
    ```
 
 3. **Handle async operations properly:**
+
    ```typescript
    // GOOD: Await with error handling
    try {
@@ -271,41 +276,42 @@ flash/
    } catch (error) {
      res.status(500).json({ error: error.message });
    }
-   
+
    // BAD: Unhandled promise rejection
-   heavyOperation().then(result => res.json(result));
+   heavyOperation().then((result) => res.json(result));
    ```
 
 ### When Writing N-API Bridge Code
 
 1. **Validate everything from JavaScript:**
+
    ```cpp
    Napi::Value Start(const Napi::CallbackInfo& info) {
        Napi::Env env = info.Env();
-       
+
        // Check argument count
        if (info.Length() < 1) {
            Napi::TypeError::New(env, "Expected 1 argument")
                .ThrowAsJavaScriptException();
            return env.Null();
        }
-       
+
        // Check argument type
        if (!info[0].IsNumber()) {
            Napi::TypeError::New(env, "Argument must be a number")
                .ThrowAsJavaScriptException();
            return env.Null();
        }
-       
+
        int port = info[0].As<Napi::Number>().Int32Value();
-       
+
        // Validate value
        if (port < 1 || port > 65535) {
            Napi::RangeError::New(env, "Port must be between 1 and 65535")
                .ThrowAsJavaScriptException();
            return env.Null();
        }
-       
+
        // Now safe to use
        server_->start(port);
        return env.Undefined();
@@ -313,28 +319,29 @@ flash/
    ```
 
 2. **Use AsyncWorker for blocking operations:**
+
    ```cpp
    // GOOD: Non-blocking async operation
    class ListenWorker : public Napi::AsyncWorker {
    public:
        ListenWorker(Napi::Function& callback, HttpServer* server, int port)
            : AsyncWorker(callback), server_(server), port_(port) {}
-       
+
        void Execute() override {
            // This runs on worker thread - OK to block
            server_->listen(port_);
        }
-       
+
        void OnOK() override {
            // Back on main thread - resolve promise
            Callback().Call({Env().Undefined()});
        }
-       
+
    private:
        HttpServer* server_;
        int port_;
    };
-   
+
    // BAD: Blocking main thread
    void Listen(const Napi::CallbackInfo& info) {
        server_->listen(port); // Blocks event loop!
@@ -360,14 +367,14 @@ protected:
     void SetUp() override {
         parser_ = std::make_unique<HttpParser>();
     }
-    
+
     std::unique_ptr<HttpParser> parser_;
 };
 
 TEST_F(HttpParserTest, ParsesSimpleGetRequest) {
     std::string raw = "GET /index.html HTTP/1.1\r\n\r\n";
     auto request = parser_->parse(raw);
-    
+
     ASSERT_TRUE(request.has_value());
     EXPECT_EQ(request->method, "GET");
     EXPECT_EQ(request->path, "/index.html");
@@ -377,7 +384,7 @@ TEST_F(HttpParserTest, ParsesSimpleGetRequest) {
 TEST_F(HttpParserTest, HandlesInvalidRequest) {
     std::string raw = "INVALID REQUEST";
     auto request = parser_->parse(raw);
-    
+
     EXPECT_FALSE(request.has_value());
 }
 
@@ -389,10 +396,10 @@ TEST_F(HttpParserTest, HandlesInvalidRequest) {
 
 ```typescript
 // File: tests/unit/router.test.ts
-import { Router } from '../../src/router';
-import { Request, Response } from '../../src/types';
+import { Router } from "../../src/router";
+import { Request, Response } from "../../src/types";
 
-describe('Router', () => {
+describe("Router", () => {
   let router: Router;
   let mockReq: Request;
   let mockRes: Response;
@@ -400,14 +407,14 @@ describe('Router', () => {
   beforeEach(() => {
     router = new Router();
     mockReq = {
-      method: 'GET',
-      path: '/test',
+      method: "GET",
+      path: "/test",
       headers: {},
       query: {},
       params: {},
       body: null,
     } as Request;
-    
+
     mockRes = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn().mockReturnThis(),
@@ -415,36 +422,37 @@ describe('Router', () => {
     } as unknown as Response;
   });
 
-  test('should register and execute GET route', async () => {
+  test("should register and execute GET route", async () => {
     const handler = jest.fn();
-    router.get('/test', handler);
-    
+    router.get("/test", handler);
+
     await router.handleRequest(mockReq, mockRes);
-    
+
     expect(handler).toHaveBeenCalledWith(mockReq, mockRes);
   });
 
-  test('should return 404 for unregistered route', async () => {
+  test("should return 404 for unregistered route", async () => {
     await router.handleRequest(mockReq, mockRes);
-    
+
     expect(mockRes.status).toHaveBeenCalledWith(404);
-    expect(mockRes.json).toHaveBeenCalledWith({ error: 'Not Found' });
+    expect(mockRes.json).toHaveBeenCalledWith({ error: "Not Found" });
   });
 
-  test('should handle async handlers', async () => {
+  test("should handle async handlers", async () => {
     const handler = jest.fn(async () => {
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
     });
-    
-    router.get('/test', handler);
+
+    router.get("/test", handler);
     await router.handleRequest(mockReq, mockRes);
-    
+
     expect(handler).toHaveBeenCalled();
   });
 });
 ```
 
 **Testing Rules:**
+
 - ✅ Test public APIs, not implementation details
 - ✅ Use descriptive test names
 - ✅ One assertion per test (when possible)
@@ -483,7 +491,7 @@ connections.reserve(1000);  // Avoid reallocations
 // GOOD: Reuse objects in hot paths
 class ConnectionPool {
     std::vector<std::unique_ptr<Connection>> pool_;
-    
+
     Connection* acquire() {
         if (!pool_.empty()) {
             auto conn = std::move(pool_.back());
@@ -572,13 +580,13 @@ class HttpError extends Error {
     public context?: Record<string, unknown>
   ) {
     super(message);
-    this.name = 'HttpError';
+    this.name = "HttpError";
   }
 }
 
 // Usage
 if (!user) {
-  throw new HttpError(404, 'User not found', { userId: req.params.id });
+  throw new HttpError(404, "User not found", { userId: req.params.id });
 }
 
 // GOOD: Error middleware pattern
@@ -589,8 +597,8 @@ app.use((error: Error, req: Request, res: Response) => {
       context: error.context,
     });
   } else {
-    console.error('Unexpected error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error("Unexpected error:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 ```
@@ -601,7 +609,7 @@ app.use((error: Error, req: Request, res: Response) => {
 // GOOD: Convert C++ exceptions to JavaScript errors
 Napi::Value ProcessData(const Napi::CallbackInfo& info) {
     Napi::Env env = info.Env();
-    
+
     try {
         // C++ code that might throw
         auto result = risky_operation();
@@ -628,21 +636,21 @@ Napi::Value ProcessData(const Napi::CallbackInfo& info) {
 ```cpp
 /**
  * @brief Parses an HTTP request from raw string data
- * 
+ *
  * This parser handles HTTP/1.1 requests and supports:
  * - GET, POST, PUT, DELETE methods
  * - Headers and query parameters
  * - JSON and form-encoded bodies
- * 
+ *
  * @param data Raw request data (must be complete)
  * @return Parsed request on success, std::nullopt on parse error
- * 
+ *
  * @note This function does not validate request semantics,
  *       only syntax. Validation should be done by the application.
- * 
+ *
  * @warning Not thread-safe. Create separate parser instances
  *          for each thread.
- * 
+ *
  * Example:
  * @code
  * HttpParser parser;
@@ -655,17 +663,17 @@ Napi::Value ProcessData(const Napi::CallbackInfo& info) {
 std::optional<HttpRequest> parse_request(std::string_view data);
 ```
 
-```typescript
+````typescript
 /**
  * Registers a middleware function to be executed for all requests
- * 
+ *
  * Middleware functions are executed in the order they are registered.
  * Each middleware must call `next()` to pass control to the next one,
  * or send a response to end the chain.
- * 
+ *
  * @param middleware - Function to execute for each request
  * @returns The router instance for method chaining
- * 
+ *
  * @example
  * ```typescript
  * app.use(async (req, res, next) => {
@@ -678,7 +686,7 @@ public use(middleware: MiddlewareFunction): this {
   this.middlewares.push(middleware);
   return this;
 }
-```
+````
 
 ### File Headers
 
@@ -689,7 +697,7 @@ public use(middleware: MiddlewareFunction): this {
  * @brief HTTP/1.1 request parser implementation
  * @author Your Name
  * @date 2025-10-04
- * 
+ *
  * This file contains the HTTP parser that converts raw socket
  * data into structured HttpRequest objects. It's designed for
  * performance and handles partial requests.
@@ -705,7 +713,7 @@ public use(middleware: MiddlewareFunction): this {
 /**
  * @module Router
  * @description Core routing functionality for Flash Framework
- * 
+ *
  * This module provides Express-like routing with support for:
  * - Path parameters (/users/:id)
  * - Query strings (?search=term)
@@ -713,7 +721,7 @@ public use(middleware: MiddlewareFunction): this {
  * - Async handlers
  */
 
-import type { Request, Response } from './types';
+import type { Request, Response } from "./types";
 ```
 
 ---
@@ -849,29 +857,27 @@ add_test(NAME flash_tests COMMAND flash_tests)
   "targets": [
     {
       "target_name": "flash_native",
-      "sources": [
-        "cpp/binding/addon.cpp",
-        "cpp/binding/type_converter.cpp"
-      ],
+      "sources": ["cpp/binding/addon.cpp", "cpp/binding/type_converter.cpp"],
       "include_dirs": [
         "<!@(node -p \"require('node-addon-api').include\")",
         "cpp/include"
       ],
-      "dependencies": [
-        "<!(node -p \"require('node-addon-api').gyp\")"
-      ],
-      "cflags!": [ "-fno-exceptions" ],
-      "cflags_cc!": [ "-fno-exceptions" ],
-      "cflags_cc": [ "-std=c++20" ],
-      "defines": [ "NAPI_DISABLE_CPP_EXCEPTIONS" ],
+      "dependencies": ["<!(node -p \"require('node-addon-api').gyp\")"],
+      "cflags!": ["-fno-exceptions"],
+      "cflags_cc!": ["-fno-exceptions"],
+      "cflags_cc": ["-std=c++20"],
+      "defines": ["NAPI_DISABLE_CPP_EXCEPTIONS"],
       "conditions": [
-        ["OS=='mac'", {
-          "xcode_settings": {
-            "GCC_ENABLE_CPP_EXCEPTIONS": "YES",
-            "CLANG_CXX_LANGUAGE_STANDARD": "c++20",
-            "MACOSX_DEPLOYMENT_TARGET": "10.15"
+        [
+          "OS=='mac'",
+          {
+            "xcode_settings": {
+              "GCC_ENABLE_CPP_EXCEPTIONS": "YES",
+              "CLANG_CXX_LANGUAGE_STANDARD": "c++20",
+              "MACOSX_DEPLOYMENT_TARGET": "10.15"
+            }
           }
-        }]
+        ]
       ]
     }
   ]
@@ -893,6 +899,7 @@ Follow Conventional Commits:
 ```
 
 **Types:**
+
 - `feat`: New feature
 - `fix`: Bug fix
 - `docs`: Documentation changes
@@ -946,20 +953,20 @@ public:
             throw std::runtime_error("Failed to open file");
         }
     }
-    
+
     ~File() {
         if (fd_ >= 0) {
             close(fd_);  // Automatic cleanup
         }
     }
-    
+
     // Delete copy, allow move
     File(const File&) = delete;
     File& operator=(const File&) = delete;
     File(File&& other) noexcept : fd_(other.fd_) {
         other.fd_ = -1;
     }
-    
+
 private:
     int fd_;
 };
@@ -972,13 +979,13 @@ private:
 void process_file(const std::string& path) {
     int fd = open(path.c_str(), O_RDONLY);
     if (fd < 0) return;  // Forgot to close!
-    
+
     process(fd);
-    
+
     if (error_condition) {
         return;  // Forgot to close!
     }
-    
+
     close(fd);
 }
 ```
@@ -989,11 +996,11 @@ void process_file(const std::string& path) {
 // GOOD: Testable, flexible
 class UserService {
   constructor(private db: Database, private cache: Cache) {}
-  
+
   async getUser(id: string): Promise<User> {
     const cached = await this.cache.get(id);
     if (cached) return cached;
-    
+
     const user = await this.db.getUser(id);
     await this.cache.set(id, user);
     return user;
@@ -1028,10 +1035,10 @@ async function getUser(id: string): Promise<User> {
 
 ```bash
 # HTTP load testing with wrk
-wrk -t4 -c100 -d30s http://localhost:3000/api/users
+wrk -t4 -c100 -d30s http://localhost:5627/api/users
 
 # Expected output format:
-# Running 30s test @ http://localhost:3000/api/users
+# Running 30s test @ http://localhost:5627/api/users
 #   4 threads and 100 connections
 #   Thread Stats   Avg      Stdev     Max   +/- Stdev
 #     Latency     5.21ms    2.34ms   50.12ms   87.23%
@@ -1047,12 +1054,12 @@ Always compare against baseline:
 
 ```typescript
 // baseline-server.ts - Pure Node.js for comparison
-import express from 'express';
+import express from "express";
 
 const app = express();
 
-app.get('/api/users/:id', (req, res) => {
-  res.json({ id: req.params.id, name: 'Test User' });
+app.get("/api/users/:id", (req, res) => {
+  res.json({ id: req.params.id, name: "Test User" });
 });
 
 app.listen(3000);
@@ -1060,12 +1067,12 @@ app.listen(3000);
 
 ```typescript
 // flash-server.ts - Our implementation
-import { Flash } from './src';
+import { Flash } from "./src";
 
 const app = new Flash();
 
-app.get('/api/users/:id', (req, res) => {
-  res.json({ id: req.params.id, name: 'Test User' });
+app.get("/api/users/:id", (req, res) => {
+  res.json({ id: req.params.id, name: "Test User" });
 });
 
 app.listen(3000);
@@ -1093,6 +1100,7 @@ app.listen(3000);
 ### 📝 Provide Context
 
 When asking for help, always include:
+
 1. What you're trying to achieve
 2. What you've tried so far
 3. Specific error messages or unexpected behavior
@@ -1104,44 +1112,51 @@ When asking for help, always include:
 ## Phase-Specific Focus
 
 ### Phase 1 (Weeks 1-4): C++ Foundation
+
 **Current Focus:** Building HTTP server core  
 **Key Files:** `cpp/src/server.cpp`, `cpp/include/server.h`  
 **Priorities:** Correctness > Performance  
-**Testing:** Manual testing with curl is OK  
+**Testing:** Manual testing with curl is OK
 
 ### Phase 2 (Weeks 5-8): N-API Integration
+
 **Current Focus:** Bridging C++ and TypeScript  
 **Key Files:** `cpp/binding/addon.cpp`, `src/index.ts`  
 **Priorities:** Type safety, Error handling  
-**Testing:** Start writing unit tests  
+**Testing:** Start writing unit tests
 
 ### Phase 3 (Weeks 9-10): Concurrency
+
 **Current Focus:** Worker thread pool  
 **Key Files:** `cpp/src/worker_pool.cpp`  
 **Priorities:** Thread safety, No race conditions  
-**Testing:** Stress testing, race condition detection  
+**Testing:** Stress testing, race condition detection
 
 ### Phase 4 (Weeks 11-12): API Layer
+
 **Current Focus:** Developer experience  
 **Key Files:** `src/router.ts`, `src/middleware/*.ts`  
 **Priorities:** Clean API, TypeScript types  
-**Testing:** Integration tests  
+**Testing:** Integration tests
 
 ### Phase 5 (Weeks 13-14): Performance
+
 **Current Focus:** Optimization  
 **Priorities:** Profile before optimizing  
-**Testing:** Benchmarking, comparison with baseline  
+**Testing:** Benchmarking, comparison with baseline
 
 ### Phase 6 (Weeks 15-16): Polish
+
 **Current Focus:** Documentation and examples  
 **Priorities:** Clarity, completeness  
-**Testing:** User testing with examples  
+**Testing:** User testing with examples
 
 ---
 
 ## Quick Reference
 
 ### Build Commands
+
 ```bash
 # Build C++ code
 mkdir build && cd build
@@ -1163,13 +1178,13 @@ npm run test:all
 
 ### Common Issues
 
-| Issue | Solution |
-|-------|----------|
-| N-API build fails | Check node-gyp setup, Python version |
-| Memory leak detected | Run with ASan, check smart pointer usage |
-| Segfault in N-API | Validate all JS arguments, check ownership |
-| Tests timeout | Check for deadlocks, blocking operations |
-| Poor performance | Profile first, then optimize hot paths |
+| Issue                | Solution                                   |
+| -------------------- | ------------------------------------------ |
+| N-API build fails    | Check node-gyp setup, Python version       |
+| Memory leak detected | Run with ASan, check smart pointer usage   |
+| Segfault in N-API    | Validate all JS arguments, check ownership |
+| Tests timeout        | Check for deadlocks, blocking operations   |
+| Poor performance     | Profile first, then optimize hot paths     |
 
 ---
 
