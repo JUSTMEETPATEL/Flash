@@ -244,69 +244,119 @@ void HttpServer::handle_connection(int client_fd) {
     std::cout << "[HttpServer] Handling connection (fd=" << client_fd 
               << ", active=" << connection_count_ << ")" << std::endl;
     
-    // WEEK 2: HTTP Request Parsing
-    char buffer[READ_BUFFER_SIZE];
-    ssize_t bytes_read = read_from_socket(client_fd, buffer, sizeof(buffer) - 1);
+    try {
+        // WEEK 2: HTTP Request Parsing
+        char buffer[READ_BUFFER_SIZE];
+        ssize_t bytes_read = read_from_socket(client_fd, buffer, sizeof(buffer) - 1);
 
-    if(bytes_read > 0){
-        buffer[bytes_read] = '\0';  // Null terminate
-        std::cout << "[HttpServer] Received " << bytes_read << " bytes" << std::endl;
-        
-        // Parse HTTP request
-        HttpParser parser;
-        auto request = parser.parse(buffer, bytes_read);
-        
-        if (request.has_value()) {
-            std::cout << "\n=== HTTP Request Parsed ===" << std::endl;
-            request->print();
-            std::cout << "============================\n" << std::endl;
+        if(bytes_read > 0){
+            buffer[bytes_read] = '\0';  // Null terminate
+            std::cout << "[HttpServer] Received " << bytes_read << " bytes" << std::endl;
             
-            // WEEK 3: Build and send proper HTTP response
-            HttpResponse response;
-            
-            // Set response based on request path
-            if (request->path == "/") {
-                response.set_status(StatusCode::OK, ReasonPhrase::OK)
-                        .set_header("Content-Type", "text/html")
-                        .set_body(
-                            "<html>\n"
-                            "<head><title>Flash Framework</title></head>\n"
-                            "<body>\n"
-                            "<h1>Welcome to Flash Framework v0.1</h1>\n"
-                            "<p>C++ HTTP Server with TypeScript API</p>\n"
-                            "<p>Your request has been processed successfully!</p>\n"
-                            "</body>\n"
-                            "</html>\n"
-                        );
-            } else if (request->path == "/api/test") {
-                // JSON response for API endpoint
-                response.set_status(StatusCode::OK, ReasonPhrase::OK)
-                        .set_header("Content-Type", "application/json")
-                        .set_body("{\"message\":\"Hello from Flash\",\"status\":\"success\"}");
-            } else {
-                // 404 for unknown paths
-                response.set_status(StatusCode::NOT_FOUND, ReasonPhrase::NOT_FOUND)
-                        .set_header("Content-Type", "text/plain")
-                        .set_body("404 Not Found\nThe requested path '" + request->path + "' does not exist.");
+            try {
+                // Parse HTTP request
+                HttpParser parser;
+                auto request = parser.parse(buffer, bytes_read);
+                
+                if (request.has_value()) {
+                    std::cout << "\n=== HTTP Request Parsed ===" << std::endl;
+                    request->print();
+                    std::cout << "============================\n" << std::endl;
+                    
+                    // WEEK 3: Build and send proper HTTP response
+                    HttpResponse response;
+                    
+                    try {
+                        // Set response based on request path
+                        if (request->path == "/") {
+                            response.set_status(StatusCode::OK, ReasonPhrase::OK)
+                                    .set_header("Content-Type", "text/html")
+                                    .set_body(
+                                        "<html>\n"
+                                        "<head><title>Flash Framework</title></head>\n"
+                                        "<body>\n"
+                                        "<h1>Welcome to Flash Framework v0.1</h1>\n"
+                                        "<p>C++ HTTP Server with TypeScript API</p>\n"
+                                        "<p>Your request has been processed successfully!</p>\n"
+                                        "</body>\n"
+                                        "</html>\n"
+                                    );
+                        } else if (request->path == "/api/test") {
+                            // JSON response for API endpoint
+                            response.set_status(StatusCode::OK, ReasonPhrase::OK)
+                                    .set_header("Content-Type", "application/json")
+                                    .set_body("{\"message\":\"Hello from Flash\",\"status\":\"success\"}");
+                        } else {
+                            // 404 for unknown paths
+                            response.set_status(StatusCode::NOT_FOUND, ReasonPhrase::NOT_FOUND)
+                                    .set_header("Content-Type", "text/plain")
+                                    .set_body("404 Not Found\nThe requested path '" + request->path + "' does not exist.");
+                        }
+                        
+                        // Serialize and send response
+                        std::string response_str = response.serialize();
+                        std::cout << "[HttpServer] Sending " << response_str.length() << " byte response" << std::endl;
+                        write_to_socket(client_fd, response_str.c_str(), response_str.length());
+                        
+                    } catch (const std::exception& e) {
+                        // Error during response building/sending
+                        std::cerr << "[HttpServer] Error building response: " << e.what() << std::endl;
+                        
+                        // Send 500 Internal Server Error
+                        HttpResponse error_response;
+                        error_response.set_status(StatusCode::INTERNAL_SERVER_ERROR, 
+                                                 ReasonPhrase::INTERNAL_SERVER_ERROR)
+                                     .set_header("Content-Type", "text/plain")
+                                     .set_body("500 Internal Server Error\nServer encountered an error processing your request.");
+                        
+                        std::string response_str = error_response.serialize();
+                        write_to_socket(client_fd, response_str.c_str(), response_str.length());
+                    }
+                    
+                } else {
+                    std::cerr << "[HttpServer] Failed to parse HTTP request" << std::endl;
+                    
+                    // Send 400 Bad Request using HttpResponse
+                    HttpResponse error_response;
+                    error_response.set_status(StatusCode::BAD_REQUEST, ReasonPhrase::BAD_REQUEST)
+                                 .set_header("Content-Type", "text/plain")
+                                 .set_body("400 Bad Request\nInvalid HTTP request format.");
+                    
+                    std::string response_str = error_response.serialize();
+                    write_to_socket(client_fd, response_str.c_str(), response_str.length());
+                }
+                
+            } catch (const std::exception& e) {
+                // Error during parsing
+                std::cerr << "[HttpServer] Exception during request parsing: " << e.what() << std::endl;
+                
+                // Send 500 Internal Server Error
+                try {
+                    HttpResponse error_response;
+                    error_response.set_status(StatusCode::INTERNAL_SERVER_ERROR, 
+                                             ReasonPhrase::INTERNAL_SERVER_ERROR)
+                                 .set_header("Content-Type", "text/plain")
+                                 .set_body("500 Internal Server Error\nServer error during request processing.");
+                    
+                    std::string response_str = error_response.serialize();
+                    write_to_socket(client_fd, response_str.c_str(), response_str.length());
+                } catch (...) {
+                    // If we can't even send error response, just log it
+                    std::cerr << "[HttpServer] Failed to send error response" << std::endl;
+                }
             }
-            
-            // Serialize and send response
-            std::string response_str = response.serialize();
-            std::cout << "[HttpServer] Sending " << response_str.length() << " byte response" << std::endl;
-            write_to_socket(client_fd, response_str.c_str(), response_str.length());
-            
+        } else if (bytes_read == 0) {
+            std::cout << "[HttpServer] Connection closed by peer" << std::endl;
         } else {
-            std::cerr << "[HttpServer] Failed to parse HTTP request" << std::endl;
-            
-            // Send 400 Bad Request using HttpResponse
-            HttpResponse error_response;
-            error_response.set_status(StatusCode::BAD_REQUEST, ReasonPhrase::BAD_REQUEST)
-                         .set_header("Content-Type", "text/plain")
-                         .set_body("400 Bad Request\nInvalid HTTP request format.");
-            
-            std::string response_str = error_response.serialize();
-            write_to_socket(client_fd, response_str.c_str(), response_str.length());
+            std::cerr << "[HttpServer] Error reading from socket: " << strerror(errno) << std::endl;
         }
+        
+    } catch (const std::exception& e) {
+        // Catch-all for any unexpected errors
+        std::cerr << "[HttpServer] Unexpected error in handle_connection: " << e.what() << std::endl;
+    } catch (...) {
+        // Catch absolutely everything to prevent server crash
+        std::cerr << "[HttpServer] Unknown error in handle_connection" << std::endl;
     }
     
     connection_count_--;

@@ -104,6 +104,7 @@ set(FLASH_TEST_SOURCES
     tests/test_server.cpp
     tests/test_http_parser.cpp
     tests/test_http_response.cpp
+    tests/test_integration.cpp
     # TODO: Add more test files as you create them
 )
 
