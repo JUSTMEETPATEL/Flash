@@ -24,12 +24,14 @@ Before you begin, ensure you have one of the following setups:
 ## Quick Start with Docker
 
 1. **Clone the repository:**
+
    ```bash
    git clone <repository-url>
    cd flash-framework
    ```
 
 2. **Start the development environment:**
+
    ```bash
    make docker-dev
    # or
@@ -37,19 +39,21 @@ Before you begin, ensure you have one of the following setups:
    ```
 
 3. **Open your browser:**
-   - Main app: http://localhost:3000
-   - Health check: http://localhost:3000/health
+
+   - Main app: http://localhost:5627
+   - Health check: http://localhost:5627/health
 
 4. **Test the API:**
    ```bash
-   curl http://localhost:3000/
-   curl http://localhost:3000/health
-   curl http://localhost:3000/api/users/123
+   curl http://localhost:5627/
+   curl http://localhost:5627/health
+   curl http://localhost:5627/api/users/123
    ```
 
 ## Manual Setup (macOS)
 
 1. **Install dependencies:**
+
    ```bash
    # Install Node.js (if not already installed)
    brew install node
@@ -64,6 +68,7 @@ Before you begin, ensure you have one of the following setups:
    ```
 
 2. **Clone and setup:**
+
    ```bash
    git clone <repository-url>
    cd flash-framework
@@ -73,6 +78,7 @@ Before you begin, ensure you have one of the following setups:
    ```
 
 3. **Build the project:**
+
    ```bash
    # Build everything
    make build
@@ -92,6 +98,7 @@ Before you begin, ensure you have one of the following setups:
 ## Manual Setup (Linux)
 
 1. **Install dependencies:**
+
    ```bash
    # Ubuntu/Debian
    sudo apt update
@@ -192,20 +199,21 @@ make docker-benchmark
 Create a new file `my-app.ts`:
 
 ```typescript
-import { Flash } from './src';
+import { Flash } from "./src";
 
 const app = new Flash({ workers: 4 });
 
-app.get('/hello', (req, res) => {
-  res.json({ message: 'Hello, Flash!' });
+app.get("/hello", (req, res) => {
+  res.json({ message: "Hello, Flash!" });
 });
 
-app.listen(3000, () => {
-  console.log('My first Flash app is running!');
+app.listen(5627, () => {
+  console.log("My first Flash app is running!");
 });
 ```
 
 Run it:
+
 ```bash
 npx ts-node my-app.ts
 ```
@@ -234,35 +242,41 @@ make test-coverage
 
 ### Performance Testing
 
-```bash
+````bash
 # Run basic benchmarks
 make benchmark
 
 # Or use wrk for load testing
-wrk -t4 -c100 -d30s http://localhost:3000/
-```
+```bash
+wrk -t4 -c100 -d30s http://localhost:5627/
+````
 
 ## Troubleshooting
 
 ### Common Issues
 
 **Build fails with "CMake not found"**
+
 - Install CMake: `brew install cmake` (macOS) or `sudo apt install cmake` (Linux)
 
 **Node-gyp fails**
+
 - Ensure Python 3 is available: `python3 --version`
 - Try: `npm config set python python3`
 
 **C++ compilation errors**
+
 - Ensure you have a C++20 compatible compiler
 - macOS: Install Xcode Command Line Tools
 - Linux: `sudo apt install build-essential clang`
 
 **Port already in use**
-- Kill existing process: `lsof -ti:3000 | xargs kill`
+
+- Kill existing process: `lsof -ti:5627 | xargs kill`
 - Or use a different port: `PORT=3001 npm run dev`
 
 **Docker issues**
+
 - Ensure Docker Desktop is running
 - Try: `docker system prune` to clean up
 

@@ -96,8 +96,8 @@ app.get("/api/users/:id", async (req, res) => {
   res.json(user);
 });
 
-app.listen(3000, () => {
-  console.log("Flash server running on port 3000");
+app.listen(5627, () => {
+  console.log("Flash server running on port 5627");
 });
 ```
 
@@ -167,19 +167,20 @@ docker-compose up benchmark
 
 ## 🐳 Docker Commands
 
-```bash
+````bash
 # Build Docker image
 docker build -t flash-framework .
 
 # Run container
-docker run -p 3000:3000 flash-framework
+```bash
+docker run -p 5627:5627 flash-framework
 
 # Development with hot reload
 docker-compose up dev
 
 # Production deployment
 docker-compose up -d app
-```
+````
 
 ## 📁 Project Structure
 
@@ -228,5 +229,7 @@ MIT License - see [LICENSE](LICENSE) file for details.
 - [Documentation](./docs/)
 - [API Reference](./docs/api-reference.md)
 - [Architecture Guide](./docs/architecture.md)
+
 # Flash
+
 # Flash

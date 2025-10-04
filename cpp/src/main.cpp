@@ -9,8 +9,8 @@
  *   ./build/flash_server [port]
  * 
  * EXAMPLE:
- *   ./build/flash_server 3000
- *   curl http://localhost:3000/
+ *   ./build/flash_server 5627
+ *   curl http://localhost:5627/
  */
 
 #include "server.h"
@@ -41,7 +41,7 @@ void signal_handler(int signal) {
  */
 int main(int argc, char* argv[]) {
     // Parse command line arguments
-    uint16_t port = 3000;  // Default port
+    uint16_t port = 5627;  // Default port
     
     if (argc > 1) {
         port = static_cast<uint16_t>(std::atoi(argv[1]));

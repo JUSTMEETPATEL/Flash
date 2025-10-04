@@ -48,14 +48,14 @@ docker-compose up dev
 3. **Check system requirements**: macOS 10.15+, 4GB RAM minimum
 4. **Reinstall Docker Desktop**: Download from https://www.docker.com/products/docker-desktop
 
-### If Port 3000 is Already in Use
+### If Port 5627 is Already in Use
 
 ```bash
-# Find what's using port 3000
-lsof -i :3000
+# Find what's using port 5627
+lsof -i :5627
 
-# Kill the process
-lsof -ti:3000 | xargs kill -9
+# Kill it
+lsof -ti:5627 | xargs kill -9
 
 # Or use our helper script
 ./start-docker.sh  # It will offer to kill the process
@@ -85,7 +85,7 @@ npm run build
 npm run dev
 ```
 
-The server will run on http://localhost:3000
+The server will run on http://localhost:5627
 
 ---
 

@@ -2,7 +2,7 @@
 
 ## What You're Building
 
-A C++ HTTP server that responds to `curl http://localhost:3000/`
+A C++ HTTP server that responds to `curl http://localhost:5627/`
 
 ## Timeline
 
@@ -48,8 +48,8 @@ npm run test:cpp
 ./build/flash_tests
 
 # Test your server manually
-curl http://localhost:3000/
-curl -v http://localhost:3000/test
+curl http://localhost:5627/
+curl -v http://localhost:5627/test
 
 # Debug
 lldb ./build/flash_server
@@ -58,7 +58,7 @@ lldb ./build/flash_server
 leaks --atExit -- ./build/flash_server
 
 # Kill process on port
-lsof -ti:3000 | xargs kill -9
+lsof -ti:5627 | xargs kill -9
 ```
 
 ## Core Concepts to Learn
@@ -100,16 +100,16 @@ Hello, World!
 ./build/flash_server
 
 # 2. Test with telnet (raw TCP)
-telnet localhost 3000
+telnet localhost 5627
 GET / HTTP/1.1
 Host: localhost
 [press Enter twice]
 
 # 3. Test with curl (HTTP)
-curl http://localhost:3000/
+curl http://localhost:5627/
 
 # 4. Test with browser
-open http://localhost:3000/
+open http://localhost:5627/
 ```
 
 ## Success Checklist

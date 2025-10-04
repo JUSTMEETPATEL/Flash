@@ -183,7 +183,7 @@ make build
 
 ```bash
 # macOS/Linux
-lsof -ti:3000 | xargs kill -9
+lsof -ti:5627 | xargs kill -9
 
 # Or change port in examples
 ```
@@ -234,7 +234,7 @@ expect(mockFn()).toBe("mocked");
 ```bash
 NODE_ENV=development  # development | production | test
 DEBUG=flash:*        # Enable debug logging
-PORT=3000            # Server port
+PORT=5627            # Server port
 ```
 
 ## Docker Commands
@@ -249,7 +249,7 @@ docker-compose down                # Stop all services
 
 # Production
 docker build -t flash .            # Build prod image
-docker run -p 3000:3000 flash      # Run prod container
+docker run -p 5627:5627 flash      # Run prod container
 ```
 
 ## Package Management

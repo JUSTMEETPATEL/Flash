@@ -14,7 +14,7 @@ By the end of Phase 1, you'll have:
 - ✅ Simple echo server that responds to requests
 - ✅ Manual testing with `curl`
 
-**Milestone:** Server can handle `curl http://localhost:3000/` and return a response
+**Milestone:** Server can handle `curl http://localhost:5627/` and return a response
 
 ---
 
@@ -185,16 +185,16 @@ valgrind --leak-check=full ./build/flash_tests
 
 ```bash
 # Simple GET request
-curl http://localhost:3000/
+curl http://localhost:5627/
 
 # Verbose output
-curl -v http://localhost:3000/
+curl -v http://localhost:5627/
 
 # Custom headers
-curl -H "Content-Type: application/json" http://localhost:3000/
+curl -H "Content-Type: application/json" http://localhost:5627/
 
 # Load testing
-ab -n 1000 -c 10 http://localhost:3000/
+ab -n 1000 -c 10 http://localhost:5627/
 ```
 
 ### Monitoring

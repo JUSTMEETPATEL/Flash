@@ -2,156 +2,156 @@
 
 Track your progress through Phase 1 implementation!
 
-## Week 1: TCP Server Basics ⏳
+## Week 1: TCP Server Basics ✅
 
 ### Day 1-2: Socket Creation & Binding
 
-- [ ] Implement `HttpServer` constructor
-  - [ ] Create socket with `socket(AF_INET, SOCK_STREAM, 0)`
-  - [ ] Set `SO_REUSEADDR` option
-  - [ ] Handle errors and throw exceptions
-  - [ ] Add debug logging
+- [x] Implement `HttpServer` constructor
+  - [x] Create socket with `socket(AF_INET, SOCK_STREAM, 0)`
+  - [x] Set `SO_REUSEADDR` option
+  - [x] Handle errors and throw exceptions
+  - [x] Add debug logging
   - **File:** `cpp/src/server.cpp` (line ~36)
-- [ ] Implement `HttpServer` destructor
-  - [ ] Close socket if open
-  - [ ] Set socket_fd to -1
-  - [ ] Don't throw exceptions!
+- [x] Implement `HttpServer` destructor
+  - [x] Close socket if open
+  - [x] Set socket_fd to -1
+  - [x] Don't throw exceptions!
   - **File:** `cpp/src/server.cpp` (line ~52)
 
 ### Day 3-4: Listen & Accept
 
-- [ ] Implement `start()` method
-  - [ ] Create `sockaddr_in` structure
-  - [ ] Bind socket to port with `bind()`
-  - [ ] Start listening with `listen()`
-  - [ ] Set `running_` flag to true
+- [x] Implement `start()` method
+  - [x] Create `sockaddr_in` structure
+  - [x] Bind socket to port with `bind()`
+  - [x] Start listening with `listen()`
+  - [x] Set `running_` flag to true
   - **File:** `cpp/src/server.cpp` (line ~96)
-- [ ] Implement accept loop in `start()`
-  - [ ] Loop while `running_` is true
-  - [ ] Call `accept()` to get client connections
-  - [ ] Handle `EINTR` (interrupted system call)
-  - [ ] Log client IP address
-  - [ ] Call `handle_connection(client_fd)`
-  - [ ] Close client socket after handling
+- [x] Implement accept loop in `start()`
+  - [x] Loop while `running_` is true
+  - [x] Call `accept()` to get client connections
+  - [x] Handle `EINTR` (interrupted system call)
+  - [x] Log client IP address
+  - [x] Call `handle_connection(client_fd)`
+  - [x] Close client socket after handling
   - **File:** `cpp/src/server.cpp` (line ~120)
 
 ### Day 5: Socket I/O
 
-- [ ] Implement `read_from_socket()`
-  - [ ] Call `read()` system call
-  - [ ] Handle errors and return -1
-  - [ ] Log errors with `strerror(errno)`
+- [x] Implement `read_from_socket()`
+  - [x] Call `read()` system call
+  - [x] Handle errors and return -1
+  - [x] Log errors with `strerror(errno)`
   - **File:** `cpp/src/server.cpp` (line ~176)
-- [ ] Implement `write_to_socket()`
-  - [ ] Call `write()` system call
-  - [ ] Handle errors and return -1
-  - [ ] Log errors
+- [x] Implement `write_to_socket()`
+  - [x] Call `write()` system call
+  - [x] Handle errors and return -1
+  - [x] Log errors
   - **File:** `cpp/src/server.cpp` (line ~193)
 
 ### Day 6-7: Echo Server & Testing
 
-- [ ] Implement basic echo in `handle_connection()`
-  - [ ] Create buffer
-  - [ ] Read data with `read_from_socket()`
-  - [ ] Write data back with `write_to_socket()`
-  - [ ] Log bytes received/sent
+- [x] Implement basic echo in `handle_connection()`
+  - [x] Create buffer
+  - [x] Read data with `read_from_socket()`
+  - [x] Write data back with `write_to_socket()`
+  - [x] Log bytes received/sent
   - **File:** `cpp/src/server.cpp` (line ~152)
-- [ ] Implement `stop()` method
+- [x] Implement `stop()` method
 
-  - [ ] Set `running_` to false
-  - [ ] Close listening socket
+  - [x] Set `running_` to false
+  - [x] Close listening socket
   - **File:** `cpp/src/server.cpp` (line ~135)
 
-- [ ] Build and test
+- [x] Build and test
 
-  - [ ] Run `npm run build:cpp` or CMake
-  - [ ] Fix compilation errors
-  - [ ] Run `./build/flash_server`
-  - [ ] Test with `telnet localhost 3000`
-  - [ ] Test with `curl http://localhost:3000/`
-  - [ ] Verify echo functionality
+  - [x] Run `npm run build:cpp` or CMake
+  - [x] Fix compilation errors
+  - [x] Run `./build/flash_server`
+  - [x] Test with `telnet localhost 5627`
+  - [x] Test with `curl http://localhost:5627/`
+  - [x] Verify echo functionality
 
-- [ ] Run unit tests
-  - [ ] Uncomment basic tests in `test_server.cpp`
-  - [ ] Run `npm run test:cpp`
-  - [ ] Fix failing tests
-  - [ ] Check for memory leaks with `leaks`
+- [x] Run unit tests
+  - [x] Uncomment basic tests in `test_server.cpp`
+  - [x] Run `npm run test:cpp`
+  - [x] Fix failing tests
+  - [x] Check for memory leaks with `leaks`
 
 ### Week 1 Milestone ✅
 
-- [ ] Server compiles without errors
-- [ ] Server starts and listens on port 3000
-- [ ] Can connect with telnet
-- [ ] Echoes back whatever you send
-- [ ] No memory leaks detected
-- [ ] Passes basic unit tests
+- [x] Server compiles without errors
+- [x] Server starts and listens on port 5627
+- [x] Can connect with telnet
+- [x] Echoes back whatever you send
+- [x] No memory leaks detected
+- [x] Passes basic unit tests
 
 ---
 
-## Week 2: HTTP Request Parsing ⏳
+## Week 2: HTTP Request Parsing ✅
 
 ### Day 1-2: Request Data Structure
 
-- [ ] Create `cpp/include/http_request.h`
-  - [ ] Define `HttpRequest` struct
-  - [ ] Add fields: method, path, version
-  - [ ] Add field: headers (map or vector)
-  - [ ] Add field: body (string)
-  - [ ] Add documentation comments
+- [x] Create `cpp/include/http_request.h`
+  - [x] Define `HttpRequest` struct
+  - [x] Add fields: method, path, version
+  - [x] Add field: headers (map or vector)
+  - [x] Add field: body (string)
+  - [x] Add documentation comments
 - [ ] Create `cpp/src/http_request.cpp`
-  - [ ] Implement any helper methods
-  - [ ] Add to CMakeLists.txt
+  - [x] Implement any helper methods
+  - [x] Add to CMakeLists.txt
 
 ### Day 3-4: Parser Implementation
 
-- [ ] Create `cpp/include/http_parser.h`
-  - [ ] Define `HttpParser` class
-  - [ ] Add `parse()` method returning `std::optional<HttpRequest>`
-  - [ ] Add documentation
-- [ ] Create `cpp/src/http_parser.cpp`
-  - [ ] Implement request line parsing
-    - [ ] Extract method (GET, POST, etc.)
-    - [ ] Extract path (/index.html)
-    - [ ] Extract HTTP version (HTTP/1.1)
-  - [ ] Implement header parsing
-    - [ ] Loop through header lines
-    - [ ] Split on `: ` delimiter
-    - [ ] Store in headers map
-  - [ ] Handle malformed requests
-    - [ ] Return `std::nullopt` on error
-  - [ ] Add to CMakeLists.txt
+- [x] Create `cpp/include/http_parser.h`
+  - [x] Define `HttpParser` class
+  - [x] Add `parse()` method returning `std::optional<HttpRequest>`
+  - [x] Add documentation
+- [x] Create `cpp/src/http_parser.cpp`
+  - [x] Implement request line parsing
+    - [x] Extract method (GET, POST, etc.)
+    - [x] Extract path (/index.html)
+    - [x] Extract HTTP version (HTTP/1.1)
+  - [x] Implement header parsing
+    - [x] Loop through header lines
+    - [x] Split on `: ` delimiter
+    - [x] Store in headers map
+  - [x] Handle malformed requests
+    - [x] Return `std::nullopt` on error
+  - [x] Add to CMakeLists.txt
 
 ### Day 5-6: Parser Testing
 
-- [ ] Create `cpp/tests/test_http_parser.cpp`
-  - [ ] Test simple GET request
-  - [ ] Test with headers
-  - [ ] Test with query string
-  - [ ] Test malformed requests
-  - [ ] Test empty requests
-- [ ] Run parser tests
-  - [ ] Add test file to CMakeLists.txt
-  - [ ] Build and run tests
-  - [ ] Fix failing tests
-  - [ ] Verify edge cases
+- [x] Create `cpp/tests/test_http_parser.cpp`
+  - [x] Test simple GET request
+  - [x] Test with headers
+  - [x] Test with query string
+  - [x] Test malformed requests
+  - [x] Test empty requests
+- [x] Run parser tests
+  - [x] Add test file to CMakeLists.txt
+  - [x] Build and run tests
+  - [x] Fix failing tests
+  - [x] Verify edge cases
 
 ### Day 7: Integration
 
-- [ ] Update `handle_connection()` in server
-  - [ ] Read data into buffer
-  - [ ] Pass buffer to parser
-  - [ ] Check if parsing succeeded
-  - [ ] Log parsed request
-  - [ ] (Still echo for now, we'll add response next week)
+- [x] Update `handle_connection()` in server
+  - [x] Read data into buffer
+  - [x] Pass buffer to parser
+  - [x] Check if parsing succeeded
+  - [x] Log parsed request
+  - [x] (Still echo for now, we'll add response next week)
 
 ### Week 2 Milestone ✅
 
-- [ ] Can parse HTTP GET requests
-- [ ] Extracts method, path, version correctly
-- [ ] Parses headers correctly
-- [ ] Handles malformed requests gracefully
-- [ ] Parser passes all unit tests
-- [ ] Server logs parsed request details
+- [x] Can parse HTTP GET requests
+- [x] Extracts method, path, version correctly
+- [x] Parses headers correctly
+- [x] Handles malformed requests gracefully
+- [x] Parser passes all unit tests (27 tests)
+- [x] Server logs parsed request details
 
 ---
 
@@ -208,8 +208,8 @@ Track your progress through Phase 1 implementation!
   - [ ] Send response back to client
   - [ ] Handle errors gracefully
 - [ ] Test with curl
-  - [ ] `curl http://localhost:3000/`
-  - [ ] `curl -v http://localhost:3000/test`
+  - [ ] `curl http://localhost:5627/`
+  - [ ] `curl -v http://localhost:5627/test`
   - [ ] Verify status code 200
   - [ ] Verify headers present
   - [ ] Verify body content
@@ -370,15 +370,17 @@ leaks --atExit -- ./build/flash_server
 
 ```bash
 # Simple request
-echo -e "GET / HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 3000
+echo -e "GET / HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 5627
 
 # Load test
-ab -n 1000 -c 10 http://localhost:3000/
+ab -n 1000 -c 10 http://localhost:5627/
 ```
 
 ### Common Issues
 
-- **Port already in use:** `lsof -ti:3000 | xargs kill -9`
+### Common Issues
+
+- **Port already in use:** `lsof -ti:5627 | xargs kill -9`
 - **Segfault:** Run with lldb, check null pointers
 - **Memory leak:** Use smart pointers, check RAII
 - **Compile error:** Check C++20 flag in CMakeLists.txt

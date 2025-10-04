@@ -18,6 +18,8 @@
  */
 
 #include "server.h"
+#include "http_parser.h"
+#include "http_response.h"
 
 #include <iostream>
 #include <cstring>
@@ -51,18 +53,17 @@ HttpServer::HttpServer(uint16_t port)
     
     std::cout << "[HttpServer] Creating server on port " << port_ << std::endl;
     
-    // TODO (Week 1): Create socket
-    // HINT: Use socket(AF_INET, SOCK_STREAM, 0)
-    // HINT: Check return value - negative means error
-    // HINT: Throw std::runtime_error if socket creation fails
-    // HINT: Use strerror(errno) for error message
+    // Create socket
+    int socket_fd = socket(AF_INET, SOCK_STREAM, 0);
+    if(socket_fd < 0){
+        throw std::runtime_error(std::string("Socket creation failed: ") + strerror(errno));
+    }
+
+    socket_fd_ = socket_fd;
     
-    // TODO (Week 1): Set socket options
-    // HINT: Use setsockopt to set SO_REUSEADDR
-    // HINT: This allows quick restart of server without "Address already in use" error
-    // EXAMPLE:
-    //   int opt = 1;
-    //   setsockopt(socket_fd_, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+    // Set socket options - SO_REUSEADDR allows quick restart
+    int opt = 1;
+    setsockopt(socket_fd_, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
     
     std::cout << "[HttpServer] Socket created successfully (fd=" << socket_fd_ << ")" << std::endl;
 }
@@ -70,11 +71,11 @@ HttpServer::HttpServer(uint16_t port)
 HttpServer::~HttpServer() {
     std::cout << "[HttpServer] Destroying server..." << std::endl;
     
-    // TODO (Week 1): Close socket if it's open
-    // HINT: Check if socket_fd_ >= 0
-    // HINT: Use close(socket_fd_)
-    // HINT: Set socket_fd_ = -1 after closing
-    // HINT: Don't throw exceptions from destructor!
+    // Close socket if it's open
+    if(socket_fd_ >= 0){
+        close(socket_fd_);
+        socket_fd_ = -1;
+    }
     
     std::cout << "[HttpServer] Server destroyed" << std::endl;
 }
@@ -125,22 +126,34 @@ void HttpServer::start() {
     
     // TODO (Week 1): Create address structure
     // HINT: Use struct sockaddr_in
+    struct sockaddr_in address;
     // HINT: Set sin_family = AF_INET
+    address.sin_family = AF_INET;
     // HINT: Set sin_port = htons(port_)  // Convert to network byte order
+    address.sin_port = htons(port_);
     // HINT: Set sin_addr.s_addr = INADDR_ANY  // Accept connections on any interface
+    address.sin_addr.s_addr = INADDR_ANY;
     
     // TODO (Week 1): Bind socket to address
     // HINT: Use bind(socket_fd_, (struct sockaddr*)&address, sizeof(address))
+    int bind_result = bind(socket_fd_, (struct sockaddr*)&address, sizeof(address));
     // HINT: Check return value - negative means error
-    // HINT: Throw std::runtime_error with descriptive message on failure
+    if(bind_result < 0){
+        // HINT: Throw std::runtime_error with descriptive message on failure
+        throw std::runtime_error(std::string("Bind failed: ") + strerror(errno));
+    }
     
     std::cout << "[HttpServer] Socket bound to port " << port_ << std::endl;
     
     // TODO (Week 1): Start listening for connections
     // HINT: Use listen(socket_fd_, LISTEN_BACKLOG)
+    int listen_result = listen(socket_fd_, LISTEN_BACKLOG);
     // HINT: LISTEN_BACKLOG is defined as constant in header
     // HINT: Check return value and throw on error
-    
+    if(listen_result < 0){
+        throw std::runtime_error(std::string("Listen failed: ") + strerror(errno));
+    }
+
     std::cout << "[HttpServer] Listening for connections..." << std::endl;
     
     // Set running flag
@@ -148,11 +161,30 @@ void HttpServer::start() {
     
     // TODO (Week 1): Main accept loop
     // HINT: Loop while running_ is true
-    // HINT: Use accept() to get new connection
-    // HINT: accept() blocks until a client connects
-    // HINT: Handle EINTR (interrupted system call) by continuing loop
-    // HINT: Call handle_connection() for each accepted connection
-    // HINT: Don't forget to close the client socket after handling!
+    while(running_){
+        struct sockaddr_in client_addr;
+        socklen_t client_len = sizeof(client_addr);
+
+        // HINT: Use accept() to get new connection
+        int client_fd = accept(socket_fd_, (struct sockaddr*)&client_addr, &client_len);
+        if (client_fd < 0) {
+            if (errno == EINTR) continue;  // Interrupted, try again
+            std::cerr << "Accept error: " << strerror(errno) << std::endl;
+            break;
+        }
+
+        // HINT: accept() blocks until a client connects
+        // HINT: Handle EINTR (interrupted system call) by continuing loop
+        // Log client connection (optional)
+        char client_ip[INET_ADDRSTRLEN];
+        inet_ntop(AF_INET, &client_addr.sin_addr, client_ip, INET_ADDRSTRLEN);
+        std::cout << "[HttpServer] Connection from " << client_ip << std::endl;
+        // HINT: Call handle_connection() for each accepted connection
+        handle_connection(client_fd);
+
+        // HINT: Don't forget to close the client socket after handling!
+        close(client_fd);
+    }
     
     // EXAMPLE STRUCTURE:
     // while (running_) {
@@ -189,9 +221,15 @@ void HttpServer::stop() {
     
     // TODO (Week 1): Set running flag to false
     // HINT: This will cause accept loop to exit
+    running_ = false;
     
     // TODO (Week 1): Close listening socket to unblock accept()
     // HINT: shutdown(socket_fd_, SHUT_RDWR) or close(socket_fd_)
+    if(socket_fd_ >= 0){
+        shutdown(socket_fd_, SHUT_RDWR);
+        close(socket_fd_);
+        socket_fd_ = -1;
+    }
     
     std::cout << "[HttpServer] Stop signal sent" << std::endl;
 }
@@ -206,30 +244,70 @@ void HttpServer::handle_connection(int client_fd) {
     std::cout << "[HttpServer] Handling connection (fd=" << client_fd 
               << ", active=" << connection_count_ << ")" << std::endl;
     
-    // TODO (Week 1): Simple echo server
-    // HINT: Create buffer: char buffer[READ_BUFFER_SIZE]
-    // HINT: Read from client: read_from_socket(client_fd, buffer, sizeof(buffer))
-    // HINT: Write back to client: write_to_socket(client_fd, buffer, bytes_read)
-    // HINT: This will echo whatever the client sends
-    
-    // WEEK 1 EXAMPLE (Echo server):
-    // char buffer[READ_BUFFER_SIZE];
-    // ssize_t bytes_read = read_from_socket(client_fd, buffer, sizeof(buffer) - 1);
-    // 
-    // if (bytes_read > 0) {
-    //     buffer[bytes_read] = '\0';  // Null terminate
-    //     std::cout << "[HttpServer] Received " << bytes_read << " bytes" << std::endl;
-    //     std::cout << "[HttpServer] Data: " << buffer << std::endl;
-    //     
-    //     // Echo back
-    //     write_to_socket(client_fd, buffer, bytes_read);
-    // }
-    
-    // TODO (Week 2-3): HTTP request/response
-    // HINT: Parse buffer as HTTP request using HttpParser
-    // HINT: Build HTTP response using HttpResponse
-    // HINT: Write response back to client
-    // HINT: We'll implement this after echo server works
+    // WEEK 2: HTTP Request Parsing
+    char buffer[READ_BUFFER_SIZE];
+    ssize_t bytes_read = read_from_socket(client_fd, buffer, sizeof(buffer) - 1);
+
+    if(bytes_read > 0){
+        buffer[bytes_read] = '\0';  // Null terminate
+        std::cout << "[HttpServer] Received " << bytes_read << " bytes" << std::endl;
+        
+        // Parse HTTP request
+        HttpParser parser;
+        auto request = parser.parse(buffer, bytes_read);
+        
+        if (request.has_value()) {
+            std::cout << "\n=== HTTP Request Parsed ===" << std::endl;
+            request->print();
+            std::cout << "============================\n" << std::endl;
+            
+            // WEEK 3: Build and send proper HTTP response
+            HttpResponse response;
+            
+            // Set response based on request path
+            if (request->path == "/") {
+                response.set_status(StatusCode::OK, ReasonPhrase::OK)
+                        .set_header("Content-Type", "text/html")
+                        .set_body(
+                            "<html>\n"
+                            "<head><title>Flash Framework</title></head>\n"
+                            "<body>\n"
+                            "<h1>Welcome to Flash Framework v0.1</h1>\n"
+                            "<p>C++ HTTP Server with TypeScript API</p>\n"
+                            "<p>Your request has been processed successfully!</p>\n"
+                            "</body>\n"
+                            "</html>\n"
+                        );
+            } else if (request->path == "/api/test") {
+                // JSON response for API endpoint
+                response.set_status(StatusCode::OK, ReasonPhrase::OK)
+                        .set_header("Content-Type", "application/json")
+                        .set_body("{\"message\":\"Hello from Flash\",\"status\":\"success\"}");
+            } else {
+                // 404 for unknown paths
+                response.set_status(StatusCode::NOT_FOUND, ReasonPhrase::NOT_FOUND)
+                        .set_header("Content-Type", "text/plain")
+                        .set_body("404 Not Found\nThe requested path '" + request->path + "' does not exist.");
+            }
+            
+            // Serialize and send response
+            std::string response_str = response.serialize();
+            std::cout << "[HttpServer] Sending " << response_str.length() << " byte response" << std::endl;
+            write_to_socket(client_fd, response_str.c_str(), response_str.length());
+            
+        } else {
+            std::cerr << "[HttpServer] Failed to parse HTTP request" << std::endl;
+            
+            // Send 400 Bad Request using HttpResponse
+            HttpResponse error_response;
+            error_response.set_status(StatusCode::BAD_REQUEST, ReasonPhrase::BAD_REQUEST)
+                         .set_header("Content-Type", "text/plain")
+                         .set_body("400 Bad Request\nInvalid HTTP request format.");
+            
+            std::string response_str = error_response.serialize();
+            write_to_socket(client_fd, response_str.c_str(), response_str.length());
+        }
+    }
     
     connection_count_--;
     
@@ -241,44 +319,29 @@ void HttpServer::handle_connection(int client_fd) {
 // ============================================================================
 
 ssize_t HttpServer::read_from_socket(int fd, char* buffer, size_t size) {
-    // TODO (Week 1): Read data from socket
-    // HINT: Use read(fd, buffer, size)
-    // HINT: Return value is number of bytes read, or -1 on error
-    // HINT: Return value of 0 means connection closed
-    // HINT: Handle EINTR by retrying
-    // HINT: Handle EAGAIN/EWOULDBLOCK for non-blocking sockets
+    ssize_t bytes_read = read(fd, buffer, size);
     
-    // SIMPLE IMPLEMENTATION:
-    // ssize_t result = read(fd, buffer, size);
-    // if (result < 0) {
-    //     std::cerr << "[HttpServer] Read error: " << strerror(errno) << std::endl;
-    // }
-    // return result;
+    if (bytes_read < 0) {
+        std::cerr << "[HttpServer] Read error: " << strerror(errno) << std::endl;
+        return -1;
+    }
     
-    // ROBUST IMPLEMENTATION (for later):
-    // Handle partial reads, EINTR, etc.
+    if (bytes_read == 0) {
+        std::cout << "[HttpServer] Connection closed by peer" << std::endl;
+    }
     
-    return -1;  // TODO: Replace with actual implementation
+    return bytes_read;
 }
 
 ssize_t HttpServer::write_to_socket(int fd, const char* data, size_t size) {
-    // TODO (Week 1): Write data to socket
-    // HINT: Use write(fd, data, size)
-    // HINT: Return value is number of bytes written, or -1 on error
-    // HINT: Handle EINTR by retrying
-    // HINT: Handle partial writes (write may not write all data at once)
+    ssize_t bytes_written = write(fd, data, size);
     
-    // SIMPLE IMPLEMENTATION:
-    // ssize_t result = write(fd, data, size);
-    // if (result < 0) {
-    //     std::cerr << "[HttpServer] Write error: " << strerror(errno) << std::endl;
-    // }
-    // return result;
+    if (bytes_written < 0) {
+        std::cerr << "[HttpServer] Write error: " << strerror(errno) << std::endl;
+        return -1;
+    }
     
-    // ROBUST IMPLEMENTATION (for later):
-    // Loop until all data is written
-    
-    return -1;  // TODO: Replace with actual implementation
+    return bytes_written;
 }
 
 // ============================================================================

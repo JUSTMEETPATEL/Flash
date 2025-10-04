@@ -66,7 +66,7 @@ newgrp docker
 
 **Symptoms:**
 
-- `Error starting userland proxy: listen tcp4 0.0.0.0:3000: bind: address already in use`
+- `Error starting userland proxy: listen tcp4 0.0.0.0:5627: bind: address already in use`
 
 **Solutions:**
 
@@ -79,7 +79,7 @@ lsof -ti:3000 | xargs kill -9
 
 # Or use a different port in docker-compose.yml
 ports:
-  - "3001:3000"  # Host:Container
+  - "5628:5627"  # Host:Container
 ```
 
 ### 3. "docker-compose command not found"
@@ -209,7 +209,7 @@ ls -la Dockerfile.dev docker-compose.yml
 # Both should exist
 
 # 6. Check ports
-lsof -i :3000
+lsof -i :5627
 # Should be empty or show expected process
 
 # 7. Try building
@@ -285,7 +285,7 @@ docker system prune -a
 
 - [ ] Docker Desktop is installed (macOS) or Docker service is running (Linux)
 - [ ] Docker daemon is running (`docker info` works)
-- [ ] No port conflicts (port 3000 is free)
+- [ ] No port conflicts (port 5627 is free)
 - [ ] Docker Compose is available (`docker-compose --version`)
 - [ ] Project files exist (Dockerfile.dev, docker-compose.yml)
 - [ ] `docker run hello-world` works
