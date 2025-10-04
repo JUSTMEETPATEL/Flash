@@ -46,8 +46,8 @@ set(FLASH_CORE_SOURCES
     src/server.cpp
     src/http_parser.cpp
     src/http_request.cpp
+    src/http_response.cpp
     # TODO: Add more source files as you create them
-    # src/http_response.cpp
     # src/connection.cpp
 )
 
@@ -56,8 +56,8 @@ set(FLASH_CORE_HEADERS
     include/server.h
     include/http_parser.h
     include/http_request.h
+    include/http_response.h
     # TODO: Add more header files as you create them
-    # include/http_response.h
     # include/connection.h
 )
 
@@ -103,8 +103,8 @@ enable_testing()
 set(FLASH_TEST_SOURCES
     tests/test_server.cpp
     tests/test_http_parser.cpp
+    tests/test_http_response.cpp
     # TODO: Add more test files as you create them
-    # tests/test_http_response.cpp
 )
 
 # Test executable

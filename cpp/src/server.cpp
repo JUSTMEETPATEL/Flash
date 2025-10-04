@@ -19,6 +19,7 @@
 
 #include "server.h"
 #include "http_parser.h"
+#include "http_response.h"
 
 #include <iostream>
 #include <cstring>
@@ -260,26 +261,53 @@ void HttpServer::handle_connection(int client_fd) {
             request->print();
             std::cout << "============================\n" << std::endl;
             
-            // For Week 2, still echo back the raw request
-            // Week 3 will build proper HTTP responses
-            write_to_socket(client_fd, buffer, bytes_read);
+            // WEEK 3: Build and send proper HTTP response
+            HttpResponse response;
+            
+            // Set response based on request path
+            if (request->path == "/") {
+                response.set_status(StatusCode::OK, ReasonPhrase::OK)
+                        .set_header("Content-Type", "text/html")
+                        .set_body(
+                            "<html>\n"
+                            "<head><title>Flash Framework</title></head>\n"
+                            "<body>\n"
+                            "<h1>Welcome to Flash Framework v0.1</h1>\n"
+                            "<p>C++ HTTP Server with TypeScript API</p>\n"
+                            "<p>Your request has been processed successfully!</p>\n"
+                            "</body>\n"
+                            "</html>\n"
+                        );
+            } else if (request->path == "/api/test") {
+                // JSON response for API endpoint
+                response.set_status(StatusCode::OK, ReasonPhrase::OK)
+                        .set_header("Content-Type", "application/json")
+                        .set_body("{\"message\":\"Hello from Flash\",\"status\":\"success\"}");
+            } else {
+                // 404 for unknown paths
+                response.set_status(StatusCode::NOT_FOUND, ReasonPhrase::NOT_FOUND)
+                        .set_header("Content-Type", "text/plain")
+                        .set_body("404 Not Found\nThe requested path '" + request->path + "' does not exist.");
+            }
+            
+            // Serialize and send response
+            std::string response_str = response.serialize();
+            std::cout << "[HttpServer] Sending " << response_str.length() << " byte response" << std::endl;
+            write_to_socket(client_fd, response_str.c_str(), response_str.length());
+            
         } else {
             std::cerr << "[HttpServer] Failed to parse HTTP request" << std::endl;
             
-            // Send 400 Bad Request (simple response)
-            const char* bad_request = 
-                "HTTP/1.1 400 Bad Request\r\n"
-                "Content-Length: 15\r\n"
-                "\r\n"
-                "Bad Request\r\n";
-            write_to_socket(client_fd, bad_request, strlen(bad_request));
+            // Send 400 Bad Request using HttpResponse
+            HttpResponse error_response;
+            error_response.set_status(StatusCode::BAD_REQUEST, ReasonPhrase::BAD_REQUEST)
+                         .set_header("Content-Type", "text/plain")
+                         .set_body("400 Bad Request\nInvalid HTTP request format.");
+            
+            std::string response_str = error_response.serialize();
+            write_to_socket(client_fd, response_str.c_str(), response_str.length());
         }
     }
-    
-    // TODO (Week 3): Build proper HTTP responses
-    // HINT: Create HttpResponse object
-    // HINT: Set status code, headers, body
-    // HINT: Serialize to string and send
     
     connection_count_--;
     
