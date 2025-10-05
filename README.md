@@ -231,5 +231,3 @@ MIT License - see [LICENSE](LICENSE) file for details.
 - [Architecture Guide](./docs/architecture.md)
 
 # Flash
-
-# Flash
