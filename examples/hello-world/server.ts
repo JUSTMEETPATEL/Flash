@@ -1,6 +1,6 @@
 import { Flash } from "../../src";
 
-const app = new Flash({ workers: 2 });
+const app = new Flash({ port: 3000, logger: true, cors: true });
 
 app.get("/", (req, res) => {
   res.json({
