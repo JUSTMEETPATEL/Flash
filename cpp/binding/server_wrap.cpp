@@ -135,12 +135,14 @@ ServerWrap::ServerWrap(const Napi::CallbackInfo& info)
 Napi::Value ServerWrap::Start(const Napi::CallbackInfo& info) {
     Napi::Env env = info.Env();
     
-    // TODO: Implement server start logic
-    // Try to start server with try-catch
-    // Catch exceptions and throw as JavaScript errors
-    
-    std::cout << "[ServerWrap] Start() called (TODO: implement me!)" << std::endl;
-    return env.Undefined();
+    try {
+        server_->start();  // This will BLOCK - we'll fix in Week 7!
+        std::cout << "[ServerWrap] Server started successfully!" << std::endl;
+        return env.Undefined();
+    } catch (const std::exception& e) {
+        Napi::Error::New(env, e.what()).ThrowAsJavaScriptException();
+        return env.Null();
+    }
 }
 
 // =============================================================================
@@ -155,6 +157,8 @@ Napi::Value ServerWrap::Start(const Napi::CallbackInfo& info) {
 // STEP 2: Stop the server
 //   try {
 //       server_->stop();
+//       std::cout<< "[ServerWrap] Server stopped successfully!" << std::endl;
+//       return env.Undefined();
 //   }
 //   catch (const std::exception& e) {
 //       Napi::Error::New(env, e.what()).ThrowAsJavaScriptException();
@@ -168,10 +172,14 @@ Napi::Value ServerWrap::Start(const Napi::CallbackInfo& info) {
 Napi::Value ServerWrap::Stop(const Napi::CallbackInfo& info) {
     Napi::Env env = info.Env();
     
-    // TODO: Implement server stop logic
-    
-    std::cout << "[ServerWrap] Stop() called (TODO: implement me!)" << std::endl;
-    return env.Undefined();
+    try {
+        server_->stop();
+        std::cout << "[ServerWrap] Server stopped successfully!" << std::endl;
+        return env.Undefined();
+    } catch (const std::exception& e) {
+        Napi::Error::New(env, e.what()).ThrowAsJavaScriptException();
+        return env.Null();
+    }
 }
 
 // =============================================================================
@@ -193,10 +201,8 @@ Napi::Value ServerWrap::Stop(const Napi::CallbackInfo& info) {
 Napi::Value ServerWrap::IsRunning(const Napi::CallbackInfo& info) {
     Napi::Env env = info.Env();
     
-    // TODO: Check server status and return boolean
-    
-    std::cout << "[ServerWrap] IsRunning() called (TODO: implement me!)" << std::endl;
-    return Napi::Boolean::New(env, false);
+    bool is_running = server_->is_running();
+    return Napi::Boolean::New(env, is_running);
 }
 
 // =============================================================================
@@ -218,11 +224,9 @@ Napi::Value ServerWrap::IsRunning(const Napi::CallbackInfo& info) {
 Napi::Value ServerWrap::GetPort(const Napi::CallbackInfo& info) {
     Napi::Env env = info.Env();
     
-    // TODO: Get port from server and return number
-    
-    std::cout << "[ServerWrap] GetPort() called (TODO: implement me!)" << std::endl;
-    return Napi::Number::New(env, 0);
+    uint16_t port = server_->get_port();
+    return Napi::Number::New(env, port);
 }
 
-} // namespace binding
-} // namespace flash
+}  // namespace binding
+} //namespace flash
