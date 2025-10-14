@@ -22,6 +22,7 @@
 #include <string>
 #include <memory>
 #include <cstdint>
+#include "worker_pool.h"
 
 namespace flash {
 
@@ -56,6 +57,7 @@ public:
      * This allows for configuration before starting.
      * 
      * @param port Port number (1-65535)
+     * @param num_workers Number of worker threads for concurrent requests (0 = auto)
      * @throws std::invalid_argument If port is out of range
      * @throws std::runtime_error If socket creation fails
      * 
@@ -64,7 +66,7 @@ public:
      * - Store socket file descriptor in member variable
      * - Don't forget to set SO_REUSEADDR option!
      */
-    explicit HttpServer(uint16_t port);
+    explicit HttpServer(uint16_t port, size_t num_workers = 0);
     
     /**
      * @brief Destructor - automatically closes socket
@@ -206,6 +208,9 @@ private:
     
     // Number of active connections (for statistics)
     size_t connection_count_;
+    
+    // Worker pool for concurrent request handling
+    std::unique_ptr<WorkerPool> worker_pool_;
     
     // Maximum connections to queue in listen()
     static constexpr int LISTEN_BACKLOG = 128;
