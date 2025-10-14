@@ -28,17 +28,20 @@ Phase 5 focuses on comprehensive testing, benchmarking, and performance optimiza
 **Files Created:**
 
 1. **jest.config.js** (41 lines)
+
    - Configured Jest for TypeScript testing
    - Set coverage thresholds to 80%
    - Enabled HTML and LCOV reports
    - Module path mapping
 
 2. **CMakeLists.txt** (Updated)
+
    - Added Coverage build type
    - Configured gcov/lcov instrumentation
    - Coverage flags for C++ code
 
 3. **Benchmark Suite**
+
    - `benchmarks/scripts/benchmark.js` (410 lines)
    - Automated benchmark runner
    - Supports Flash, Node.js, Express comparison
@@ -46,12 +49,14 @@ Phase 5 focuses on comprehensive testing, benchmarking, and performance optimiza
    - JSON report generation
 
 4. **Benchmark Servers**
+
    - `benchmarks/servers/flash-server.js` (59 lines)
    - `benchmarks/servers/node-server.js` (141 lines)
    - `benchmarks/servers/express-server.js` (59 lines)
    - 5 benchmark scenarios each
 
 5. **Coverage Scripts**
+
    - `scripts/coverage-cpp.sh` (88 lines)
    - `scripts/coverage-ts.sh` (76 lines)
    - Automated coverage analysis
@@ -59,6 +64,7 @@ Phase 5 focuses on comprehensive testing, benchmarking, and performance optimiza
    - Threshold checking (80%)
 
 6. **Memory Leak Detection**
+
    - `scripts/check-leaks.sh` (75 lines)
    - Instruments support (macOS)
    - Valgrind support (Linux)
@@ -246,25 +252,25 @@ app.get("/protected", logger, auth, validation, (req, res) => {
 
 ### Throughput Goals
 
-| Scenario       | Target (req/s) | Baseline Express | Status      |
-| -------------- | -------------- | ---------------- | ----------- |
-| Hello World    | 50,000+        | 25,000           | 📊 To Test  |
-| JSON Response  | 40,000+        | 20,000           | 📊 To Test  |
-| Path Params    | 35,000+        | 18,000           | 📊 To Test  |
-| Query Strings  | 35,000+        | 18,000           | 📊 To Test  |
-| Middleware     | 30,000+        | 15,000           | 📊 To Test  |
+| Scenario      | Target (req/s) | Baseline Express | Status     |
+| ------------- | -------------- | ---------------- | ---------- |
+| Hello World   | 50,000+        | 25,000           | 📊 To Test |
+| JSON Response | 40,000+        | 20,000           | 📊 To Test |
+| Path Params   | 35,000+        | 18,000           | 📊 To Test |
+| Query Strings | 35,000+        | 18,000           | 📊 To Test |
+| Middleware    | 30,000+        | 15,000           | 📊 To Test |
 
 ### Coverage Goals
 
-| Component         | Current | Target | Status     |
-| ----------------- | ------- | ------ | ---------- |
-| C++ HttpServer    | ~80%    | 90%+   | 🔍 To Test |
-| C++ HttpParser    | ~85%    | 95%+   | 🔍 To Test |
-| C++ WorkerPool    | ~90%    | 95%+   | 🔍 To Test |
-| C++ FileHandler   | ~95%    | 95%+   | ✅ Good    |
-| TS Router         | ~60%    | 90%+   | 📝 To Test |
-| TS Request/Res    | ~50%    | 85%+   | 📝 To Test |
-| TS Middleware     | ~40%    | 80%+   | 📝 To Test |
+| Component       | Current | Target | Status     |
+| --------------- | ------- | ------ | ---------- |
+| C++ HttpServer  | ~80%    | 90%+   | 🔍 To Test |
+| C++ HttpParser  | ~85%    | 95%+   | 🔍 To Test |
+| C++ WorkerPool  | ~90%    | 95%+   | 🔍 To Test |
+| C++ FileHandler | ~95%    | 95%+   | ✅ Good    |
+| TS Router       | ~60%    | 90%+   | 📝 To Test |
+| TS Request/Res  | ~50%    | 85%+   | 📝 To Test |
+| TS Middleware   | ~40%    | 80%+   | 📝 To Test |
 
 ---
 

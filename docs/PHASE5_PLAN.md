@@ -28,11 +28,13 @@ Phase 5 focuses on ensuring Flash Framework meets all performance targets and ha
 **Tasks:**
 
 1. **Set up test coverage tools**
+
    - Add lcov/gcov for C++ coverage
    - Configure Jest coverage for TypeScript
    - Create coverage reporting scripts
 
 2. **Expand C++ test suite**
+
    - Add missing test cases for edge cases
    - Test error handling paths
    - Test concurrent access scenarios
@@ -45,6 +47,7 @@ Phase 5 focuses on ensuring Flash Framework meets all performance targets and ha
    - Test route matching edge cases
 
 **Deliverables:**
+
 - Coverage reports for both layers
 - New test files filling gaps
 - Documentation of test strategy
@@ -54,12 +57,14 @@ Phase 5 focuses on ensuring Flash Framework meets all performance targets and ha
 **Tasks:**
 
 1. **End-to-end test suite**
+
    - Full request/response cycle tests
    - Multi-route application tests
    - Middleware chain tests
    - Static file serving tests
 
 2. **N-API boundary tests**
+
    - Type conversion edge cases
    - Error propagation
    - Memory ownership verification
@@ -72,6 +77,7 @@ Phase 5 focuses on ensuring Flash Framework meets all performance targets and ha
    - Resource exhaustion tests
 
 **Deliverables:**
+
 - Integration test suite (10+ scenarios)
 - N-API test harness
 - Stress test results
@@ -81,11 +87,13 @@ Phase 5 focuses on ensuring Flash Framework meets all performance targets and ha
 **Tasks:**
 
 1. **Set up memory analysis tools**
+
    - Configure Valgrind (Linux) / Instruments (macOS)
    - Add memory leak detection to CI
    - Create long-running test scenarios
 
 2. **Run memory tests**
+
    - Test with 10,000 requests
    - Test with 100,000 requests
    - Monitor memory growth over time
@@ -97,6 +105,7 @@ Phase 5 focuses on ensuring Flash Framework meets all performance targets and ha
    - Add RAII where missing
 
 **Deliverables:**
+
 - Clean memory leak report
 - Memory analysis documentation
 - Fixed leak issues
@@ -110,12 +119,14 @@ Phase 5 focuses on ensuring Flash Framework meets all performance targets and ha
 **Tasks:**
 
 1. **Create baseline comparisons**
+
    - Pure Node.js HTTP server
    - Express.js server
    - Fastify server
    - Flash Framework
 
 2. **Implement benchmark scenarios**
+
    - Simple GET request (hello world)
    - JSON response
    - Path parameter extraction
@@ -131,6 +142,7 @@ Phase 5 focuses on ensuring Flash Framework meets all performance targets and ha
    - Visualize results
 
 **Deliverables:**
+
 - `benchmarks/` directory with all scenarios
 - Baseline comparison data
 - Automated benchmark runner
@@ -141,12 +153,14 @@ Phase 5 focuses on ensuring Flash Framework meets all performance targets and ha
 **Tasks:**
 
 1. **Profile hot paths**
+
    - Use Instruments (macOS) or perf (Linux)
    - Identify bottlenecks
    - Analyze CPU usage
    - Check memory allocation patterns
 
 2. **Optimize based on profiling**
+
    - Reduce allocations in hot paths
    - Optimize string operations
    - Improve lock contention
@@ -159,6 +173,7 @@ Phase 5 focuses on ensuring Flash Framework meets all performance targets and ha
    - Document optimization decisions
 
 **Deliverables:**
+
 - Profiling reports
 - Optimization implementation
 - Performance improvement documentation
@@ -169,12 +184,14 @@ Phase 5 focuses on ensuring Flash Framework meets all performance targets and ha
 **Tasks:**
 
 1. **Performance documentation**
+
    - Document benchmark methodology
    - Publish performance numbers
    - Compare with competitors
    - Explain optimization techniques
 
 2. **Test documentation**
+
    - Document test coverage
    - Explain test strategy
    - Add testing guide for contributors
@@ -187,6 +204,7 @@ Phase 5 focuses on ensuring Flash Framework meets all performance targets and ha
    - Plan for Phase 6
 
 **Deliverables:**
+
 - PERFORMANCE.md with benchmarks
 - TESTING.md with test guide
 - PHASE5_COMPLETE.md report
@@ -230,35 +248,40 @@ endif()
 ### 2. Benchmark Scenarios
 
 **Scenario 1: Hello World**
+
 ```typescript
-app.get('/', (req, res) => {
-  res.send('Hello, World!');
+app.get("/", (req, res) => {
+  res.send("Hello, World!");
 });
 ```
 
 **Scenario 2: JSON Response**
+
 ```typescript
-app.get('/api/user', (req, res) => {
-  res.json({ id: 123, name: 'John Doe', email: 'john@example.com' });
+app.get("/api/user", (req, res) => {
+  res.json({ id: 123, name: "John Doe", email: "john@example.com" });
 });
 ```
 
 **Scenario 3: Path Parameters**
+
 ```typescript
-app.get('/users/:id', (req, res) => {
+app.get("/users/:id", (req, res) => {
   res.json({ id: req.params.id });
 });
 ```
 
 **Scenario 4: Middleware Chain**
+
 ```typescript
 app.use(logger);
 app.use(auth);
 app.use(validation);
-app.get('/protected', handler);
+app.get("/protected", handler);
 ```
 
 **Scenario 5: Static Files**
+
 ```typescript
 app.use(createStaticMiddleware('./public'));
 app.get('/index.html', ...);
@@ -273,13 +296,13 @@ app.get('/index.html', ...);
 void memory_leak_test() {
     auto server = std::make_unique<HttpServer>(5627, 4);
     server->start();
-    
+
     // Simulate 100 requests
     for (int i = 0; i < 100; ++i) {
         auto conn = simulate_connection();
         server->handle_request(conn);
     }
-    
+
     server->shutdown();
     // server should be fully cleaned up here
 }
@@ -325,31 +348,31 @@ ms_print massif.out.* > memory_profile.txt
 
 ### Throughput
 
-| Scenario          | Target (req/s) | Baseline Express | Target Flash | Improvement |
-|-------------------|----------------|------------------|--------------|-------------|
-| Hello World       | 50,000+        | 25,000           | 50,000+      | 2x          |
-| JSON Response     | 40,000+        | 20,000           | 40,000+      | 2x          |
-| Path Parameters   | 35,000+        | 18,000           | 35,000+      | ~2x         |
-| Middleware Chain  | 30,000+        | 15,000           | 30,000+      | 2x          |
-| Static Files      | 25,000+        | 10,000           | 25,000+      | 2.5x        |
+| Scenario         | Target (req/s) | Baseline Express | Target Flash | Improvement |
+| ---------------- | -------------- | ---------------- | ------------ | ----------- |
+| Hello World      | 50,000+        | 25,000           | 50,000+      | 2x          |
+| JSON Response    | 40,000+        | 20,000           | 40,000+      | 2x          |
+| Path Parameters  | 35,000+        | 18,000           | 35,000+      | ~2x         |
+| Middleware Chain | 30,000+        | 15,000           | 30,000+      | 2x          |
+| Static Files     | 25,000+        | 10,000           | 25,000+      | 2.5x        |
 
 ### Latency
 
-| Percentile | Target     | Baseline Express | Target Flash |
-|------------|------------|------------------|--------------|
-| p50        | < 2ms      | 3-5ms            | < 2ms        |
-| p95        | < 5ms      | 8-12ms           | < 5ms        |
-| p99        | < 10ms     | 15-25ms          | < 10ms       |
-| p99.9      | < 20ms     | 30-50ms          | < 20ms       |
+| Percentile | Target | Baseline Express | Target Flash |
+| ---------- | ------ | ---------------- | ------------ |
+| p50        | < 2ms  | 3-5ms            | < 2ms        |
+| p95        | < 5ms  | 8-12ms           | < 5ms        |
+| p99        | < 10ms | 15-25ms          | < 10ms       |
+| p99.9      | < 20ms | 30-50ms          | < 20ms       |
 
 ### Memory Usage
 
-| Scenario              | Target Memory | Notes                          |
-|-----------------------|---------------|--------------------------------|
-| Idle server           | < 20MB        | Server running, no requests    |
-| 1,000 connections     | < 100MB       | Active concurrent connections  |
-| 10,000 requests       | < 150MB       | Peak memory during load        |
-| Memory leak rate      | 0 bytes/req   | No growth over 100k requests   |
+| Scenario          | Target Memory | Notes                         |
+| ----------------- | ------------- | ----------------------------- |
+| Idle server       | < 20MB        | Server running, no requests   |
+| 1,000 connections | < 100MB       | Active concurrent connections |
+| 10,000 requests   | < 150MB       | Peak memory during load       |
+| Memory leak rate  | 0 bytes/req   | No growth over 100k requests  |
 
 ---
 
@@ -358,7 +381,7 @@ ms_print massif.out.* > memory_profile.txt
 ### C++ Components
 
 | Component         | Current | Target | Priority |
-|-------------------|---------|--------|----------|
+| ----------------- | ------- | ------ | -------- |
 | HttpServer        | ~80%    | 90%+   | High     |
 | HttpParser        | ~85%    | 95%+   | High     |
 | HttpResponse      | ~75%    | 90%+   | High     |
@@ -368,14 +391,14 @@ ms_print massif.out.* > memory_profile.txt
 
 ### TypeScript Components
 
-| Component    | Current | Target | Priority |
-|--------------|---------|--------|----------|
-| Router       | ~60%    | 90%+   | High     |
-| Request      | ~50%    | 85%+   | High     |
-| Response     | ~50%    | 85%+   | High     |
-| Middleware   | ~40%    | 80%+   | High     |
-| Server       | ~55%    | 85%+   | Medium   |
-| Types        | N/A     | N/A    | Low      |
+| Component  | Current | Target | Priority |
+| ---------- | ------- | ------ | -------- |
+| Router     | ~60%    | 90%+   | High     |
+| Request    | ~50%    | 85%+   | High     |
+| Response   | ~50%    | 85%+   | High     |
+| Middleware | ~40%    | 80%+   | High     |
+| Server     | ~55%    | 85%+   | Medium   |
+| Types      | N/A     | N/A    | Low      |
 
 ---
 
@@ -490,6 +513,7 @@ At the end of Phase 5, we should have:
 ## 🎯 Next Phase Preview
 
 **Phase 6: Polish (Weeks 15-16)**
+
 - Example applications
 - Complete documentation
 - Developer experience improvements

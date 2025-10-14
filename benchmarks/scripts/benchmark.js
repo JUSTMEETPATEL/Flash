@@ -1,68 +1,68 @@
 /**
  * Benchmark Runner for Flash Framework
- * 
+ *
  * Compares Flash Framework performance against:
  * - Pure Node.js HTTP server
  * - Express.js
  * - Fastify
- * 
+ *
  * Uses wrk for load testing
  */
 
-const { spawn } = require('child_process');
-const fs = require('fs');
-const path = require('path');
+const { spawn } = require("child_process");
+const fs = require("fs");
+const path = require("path");
 
 // Benchmark configuration
 const BENCHMARK_CONFIG = {
-  duration: '30s',
+  duration: "30s",
   threads: 4,
   connections: 100,
-  warmupDuration: '5s',
+  warmupDuration: "5s",
   scenarios: [
     {
-      name: 'hello-world',
-      path: '/hello',
+      name: "hello-world",
+      path: "/hello",
       description: 'Simple "Hello, World!" response',
     },
     {
-      name: 'json-response',
-      path: '/api/user',
-      description: 'JSON response with object data',
+      name: "json-response",
+      path: "/api/user",
+      description: "JSON response with object data",
     },
     {
-      name: 'path-params',
-      path: '/users/123',
-      description: 'Route with path parameter extraction',
+      name: "path-params",
+      path: "/users/123",
+      description: "Route with path parameter extraction",
     },
     {
-      name: 'query-string',
-      path: '/search?q=test&limit=10',
-      description: 'Route with query string parsing',
+      name: "query-string",
+      path: "/search?q=test&limit=10",
+      description: "Route with query string parsing",
     },
     {
-      name: 'middleware-chain',
-      path: '/protected',
-      description: 'Route with 3 middleware functions',
+      name: "middleware-chain",
+      path: "/protected",
+      description: "Route with 3 middleware functions",
     },
   ],
 };
 
 // Servers to benchmark
 const SERVERS = {
-  'flash': {
-    name: 'Flash Framework',
-    script: 'benchmarks/servers/flash-server.js',
+  flash: {
+    name: "Flash Framework",
+    script: "benchmarks/servers/flash-server.js",
     port: 5627,
   },
-  'node': {
-    name: 'Pure Node.js',
-    script: 'benchmarks/servers/node-server.js',
+  node: {
+    name: "Pure Node.js",
+    script: "benchmarks/servers/node-server.js",
     port: 5628,
   },
-  'express': {
-    name: 'Express.js',
-    script: 'benchmarks/servers/express-server.js',
+  express: {
+    name: "Express.js",
+    script: "benchmarks/servers/express-server.js",
     port: 5629,
   },
 };
@@ -73,27 +73,30 @@ const SERVERS = {
 function runWrk(url, config) {
   return new Promise((resolve, reject) => {
     const args = [
-      '-t', config.threads.toString(),
-      '-c', config.connections.toString(),
-      '-d', config.duration,
-      '--latency',
+      "-t",
+      config.threads.toString(),
+      "-c",
+      config.connections.toString(),
+      "-d",
+      config.duration,
+      "--latency",
       url,
     ];
 
-    console.log(`  Running: wrk ${args.join(' ')}`);
+    console.log(`  Running: wrk ${args.join(" ")}`);
 
-    let output = '';
-    const wrk = spawn('wrk', args);
+    let output = "";
+    const wrk = spawn("wrk", args);
 
-    wrk.stdout.on('data', (data) => {
+    wrk.stdout.on("data", (data) => {
       output += data.toString();
     });
 
-    wrk.stderr.on('data', (data) => {
+    wrk.stderr.on("data", (data) => {
       console.error(`wrk error: ${data}`);
     });
 
-    wrk.on('close', (code) => {
+    wrk.on("close", (code) => {
       if (code !== 0) {
         reject(new Error(`wrk exited with code ${code}`));
       } else {
@@ -109,15 +112,15 @@ function runWrk(url, config) {
 function parseWrkOutput(output) {
   const metrics = {
     requestsPerSec: 0,
-    transferPerSec: '',
+    transferPerSec: "",
     latency: {
-      avg: '',
-      stdev: '',
-      max: '',
-      p50: '',
-      p75: '',
-      p90: '',
-      p99: '',
+      avg: "",
+      stdev: "",
+      max: "",
+      p50: "",
+      p75: "",
+      p90: "",
+      p99: "",
     },
     requests: {
       total: 0,
@@ -138,7 +141,9 @@ function parseWrkOutput(output) {
   }
 
   // Extract latency stats
-  const latencyMatch = output.match(/Latency\s+([\d.]+\w+)\s+([\d.]+\w+)\s+([\d.]+\w+)/);
+  const latencyMatch = output.match(
+    /Latency\s+([\d.]+\w+)\s+([\d.]+\w+)\s+([\d.]+\w+)/
+  );
   if (latencyMatch) {
     metrics.latency.avg = latencyMatch[1];
     metrics.latency.stdev = latencyMatch[2];
@@ -172,8 +177,8 @@ function startServer(serverConfig) {
   return new Promise((resolve, reject) => {
     console.log(`  Starting ${serverConfig.name}...`);
 
-    const serverProcess = spawn('node', [serverConfig.script], {
-      stdio: ['ignore', 'pipe', 'pipe'],
+    const serverProcess = spawn("node", [serverConfig.script], {
+      stdio: ["ignore", "pipe", "pipe"],
     });
 
     let started = false;
@@ -186,9 +191,9 @@ function startServer(serverConfig) {
       }
     }, 10000);
 
-    serverProcess.stdout.on('data', (data) => {
+    serverProcess.stdout.on("data", (data) => {
       const output = data.toString();
-      if (output.includes('listening') || output.includes('started')) {
+      if (output.includes("listening") || output.includes("started")) {
         if (!started) {
           started = true;
           clearTimeout(timeout);
@@ -198,11 +203,11 @@ function startServer(serverConfig) {
       }
     });
 
-    serverProcess.stderr.on('data', (data) => {
+    serverProcess.stderr.on("data", (data) => {
       console.error(`${serverConfig.name} error: ${data}`);
     });
 
-    serverProcess.on('close', (code) => {
+    serverProcess.on("close", (code) => {
       if (!started) {
         clearTimeout(timeout);
         reject(new Error(`${serverConfig.name} exited with code ${code}`));
@@ -221,15 +226,15 @@ function stopServer(serverProcess) {
       return;
     }
 
-    serverProcess.on('close', () => {
+    serverProcess.on("close", () => {
       resolve();
     });
 
-    serverProcess.kill('SIGTERM');
+    serverProcess.kill("SIGTERM");
 
     // Force kill after 5 seconds
     setTimeout(() => {
-      serverProcess.kill('SIGKILL');
+      serverProcess.kill("SIGKILL");
       resolve();
     }, 5000);
   });
@@ -250,10 +255,10 @@ async function benchmarkScenario(serverKey, serverConfig, scenario) {
 
     // Warmup
     console.log(`  Warming up (${BENCHMARK_CONFIG.warmupDuration})...`);
-    await runWrk(
-      `http://localhost:${serverConfig.port}${scenario.path}`,
-      { ...BENCHMARK_CONFIG, duration: BENCHMARK_CONFIG.warmupDuration }
-    );
+    await runWrk(`http://localhost:${serverConfig.port}${scenario.path}`, {
+      ...BENCHMARK_CONFIG,
+      duration: BENCHMARK_CONFIG.warmupDuration,
+    });
 
     // Actual benchmark
     console.log(`  Running benchmark (${BENCHMARK_CONFIG.duration})...`);
@@ -262,15 +267,16 @@ async function benchmarkScenario(serverKey, serverConfig, scenario) {
       BENCHMARK_CONFIG
     );
 
-    console.log(`  ✅ ${metrics.requestsPerSec.toFixed(0)} req/s | ` +
-                `p99: ${metrics.latency.p99} | avg: ${metrics.latency.avg}`);
+    console.log(
+      `  ✅ ${metrics.requestsPerSec.toFixed(0)} req/s | ` +
+        `p99: ${metrics.latency.p99} | avg: ${metrics.latency.avg}`
+    );
 
     return {
       server: serverKey,
       scenario: scenario.name,
       metrics,
     };
-
   } catch (error) {
     console.error(`  ❌ Error: ${error.message}`);
     return {
@@ -278,7 +284,6 @@ async function benchmarkScenario(serverKey, serverConfig, scenario) {
       scenario: scenario.name,
       error: error.message,
     };
-
   } finally {
     // Stop server
     if (serverProcess) {
@@ -311,19 +316,23 @@ function generateReport(results, outputPath) {
 
   // Calculate improvements
   Object.keys(byScenario).forEach((scenario) => {
-    const flashMetrics = byScenario[scenario]['flash'];
-    const expressMetrics = byScenario[scenario]['express'];
+    const flashMetrics = byScenario[scenario]["flash"];
+    const expressMetrics = byScenario[scenario]["express"];
 
     if (flashMetrics && expressMetrics) {
-      const improvement = 
-        ((flashMetrics.requestsPerSec - expressMetrics.requestsPerSec) / 
-         expressMetrics.requestsPerSec * 100).toFixed(1);
+      const improvement = (
+        ((flashMetrics.requestsPerSec - expressMetrics.requestsPerSec) /
+          expressMetrics.requestsPerSec) *
+        100
+      ).toFixed(1);
 
       report.comparison[scenario] = {
         flash_rps: flashMetrics.requestsPerSec,
         express_rps: expressMetrics.requestsPerSec,
         improvement: `${improvement}%`,
-        improvement_factor: (flashMetrics.requestsPerSec / expressMetrics.requestsPerSec).toFixed(2),
+        improvement_factor: (
+          flashMetrics.requestsPerSec / expressMetrics.requestsPerSec
+        ).toFixed(2),
       };
     }
   });
@@ -339,33 +348,35 @@ function generateReport(results, outputPath) {
  * Print summary
  */
 function printSummary(report) {
-  console.log('\n' + '='.repeat(80));
-  console.log('📊 BENCHMARK SUMMARY');
-  console.log('='.repeat(80));
+  console.log("\n" + "=".repeat(80));
+  console.log("📊 BENCHMARK SUMMARY");
+  console.log("=".repeat(80));
 
   Object.keys(report.comparison).forEach((scenario) => {
     const comp = report.comparison[scenario];
     console.log(`\n${scenario}:`);
     console.log(`  Flash:    ${comp.flash_rps.toFixed(0)} req/s`);
     console.log(`  Express:  ${comp.express_rps.toFixed(0)} req/s`);
-    console.log(`  Improvement: ${comp.improvement} (${comp.improvement_factor}x faster)`);
+    console.log(
+      `  Improvement: ${comp.improvement} (${comp.improvement_factor}x faster)`
+    );
   });
 
-  console.log('\n' + '='.repeat(80));
+  console.log("\n" + "=".repeat(80));
 }
 
 /**
  * Main benchmark runner
  */
 async function main() {
-  console.log('🚀 Flash Framework Benchmark Suite');
-  console.log('='.repeat(80));
+  console.log("🚀 Flash Framework Benchmark Suite");
+  console.log("=".repeat(80));
   console.log(`Duration: ${BENCHMARK_CONFIG.duration} per test`);
   console.log(`Threads: ${BENCHMARK_CONFIG.threads}`);
   console.log(`Connections: ${BENCHMARK_CONFIG.connections}`);
   console.log(`Scenarios: ${BENCHMARK_CONFIG.scenarios.length}`);
   console.log(`Servers: ${Object.keys(SERVERS).length}`);
-  console.log('='.repeat(80));
+  console.log("=".repeat(80));
 
   const results = [];
 
@@ -380,9 +391,13 @@ async function main() {
   }
 
   // Generate report
-  const reportPath = path.join(__dirname, '..', 'results', 
-    `benchmark-${Date.now()}.json`);
-  
+  const reportPath = path.join(
+    __dirname,
+    "..",
+    "results",
+    `benchmark-${Date.now()}.json`
+  );
+
   // Create results directory if it doesn't exist
   const resultsDir = path.dirname(reportPath);
   if (!fs.existsSync(resultsDir)) {
@@ -392,17 +407,19 @@ async function main() {
   const report = generateReport(results, reportPath);
   printSummary(report);
 
-  console.log('\n✅ Benchmarking complete!');
+  console.log("\n✅ Benchmarking complete!");
 }
 
 // Check if wrk is installed
 function checkWrk() {
   return new Promise((resolve) => {
-    const wrk = spawn('wrk', ['--version']);
-    wrk.on('close', (code) => {
+    const wrk = spawn("wrk", ["--version"]);
+    wrk.on("close", (code) => {
       if (code !== 0) {
-        console.error('❌ wrk is not installed!');
-        console.error('Install with: brew install wrk (macOS) or apt-get install wrk (Linux)');
+        console.error("❌ wrk is not installed!");
+        console.error(
+          "Install with: brew install wrk (macOS) or apt-get install wrk (Linux)"
+        );
         process.exit(1);
       }
       resolve();
@@ -413,7 +430,7 @@ function checkWrk() {
 // Run main with error handling
 checkWrk().then(() => {
   main().catch((error) => {
-    console.error('❌ Benchmark failed:', error);
+    console.error("❌ Benchmark failed:", error);
     process.exit(1);
   });
 });

@@ -5,7 +5,7 @@
 **Node.js:** v23.10.0  
 **Test Duration:** 10 seconds per scenario  
 **Connections:** 100 concurrent  
-**Threads:** 4  
+**Threads:** 4
 
 ---
 
@@ -13,13 +13,13 @@
 
 ### Detailed Results by Scenario
 
-| Scenario | Requests/sec | Avg Latency | P50 Latency | P99 Latency | Total Requests |
-|----------|--------------|-------------|-------------|-------------|----------------|
-| Hello World | **24,806** | 4.86ms | 3.82ms | 14.69ms | 250,610 |
-| JSON Response | **24,605** | 4.37ms | 3.87ms | 6.62ms | 248,535 |
-| Path Parameters | **24,426** | 4.40ms | 3.91ms | 5.81ms | 246,753 |
-| Query String | **24,062** | 4.45ms | 3.96ms | 5.84ms | 243,044 |
-| Middleware Chain | **24,479** | 4.42ms | 3.88ms | 9.20ms | 247,309 |
+| Scenario         | Requests/sec | Avg Latency | P50 Latency | P99 Latency | Total Requests |
+| ---------------- | ------------ | ----------- | ----------- | ----------- | -------------- |
+| Hello World      | **24,806**   | 4.86ms      | 3.82ms      | 14.69ms     | 250,610        |
+| JSON Response    | **24,605**   | 4.37ms      | 3.87ms      | 6.62ms      | 248,535        |
+| Path Parameters  | **24,426**   | 4.40ms      | 3.91ms      | 5.81ms      | 246,753        |
+| Query String     | **24,062**   | 4.45ms      | 3.96ms      | 5.84ms      | 243,044        |
+| Middleware Chain | **24,479**   | 4.42ms      | 3.88ms      | 9.20ms      | 247,309        |
 
 ### Summary Statistics
 
@@ -34,11 +34,11 @@
 
 Based on the 2x improvement goal:
 
-| Metric | Express Baseline | Flash Target (2x) |
-|--------|------------------|-------------------|
-| **Throughput** | 24,476 req/sec | **48,952 req/sec** |
-| **Avg Latency** | 4.50ms | **2.25ms** |
-| **P99 Latency** | 8.43ms | **4.22ms** |
+| Metric          | Express Baseline | Flash Target (2x)  |
+| --------------- | ---------------- | ------------------ |
+| **Throughput**  | 24,476 req/sec   | **48,952 req/sec** |
+| **Avg Latency** | 4.50ms           | **2.25ms**         |
+| **P99 Latency** | 8.43ms           | **4.22ms**         |
 
 ---
 
@@ -47,11 +47,13 @@ Based on the 2x improvement goal:
 ### Express Performance Characteristics
 
 1. **Very Consistent**
+
    - All scenarios within 3% of each other (24,062 - 24,806 req/sec)
    - Middleware overhead is minimal (~300 req/sec difference)
    - Query parsing has minimal impact
 
 2. **Good Latency**
+
    - P50 latencies consistently ~4ms
    - P99 latencies generally under 10ms (except Hello World at 14.69ms)
    - Stable under load
@@ -66,14 +68,17 @@ Based on the 2x improvement goal:
 Based on this baseline, Flash Framework should target improvements in:
 
 1. **Request Parsing** (5-10µs vs 50-100µs)
+
    - C++ parsing is ~10x faster than JavaScript
    - Potential gain: 2,000-5,000 req/sec
 
 2. **Routing** (20-30µs vs 50-100µs)
+
    - Compiled routing logic vs interpreted
    - Potential gain: 3,000-8,000 req/sec
 
 3. **Response Generation** (10-15µs vs 20-30µs)
+
    - Direct buffer manipulation
    - Potential gain: 2,000-5,000 req/sec
 
@@ -114,11 +119,13 @@ Test Parameters:
 ### Strengths of Express
 
 1. **Mature and Stable**
+
    - Well-optimized after years of development
    - Handles edge cases well
    - Consistent performance
 
 2. **Good Performance**
+
    - 24K req/sec is respectable for a high-level framework
    - Latencies under 5ms average
    - Scales reasonably with concurrency
@@ -130,11 +137,13 @@ Test Parameters:
 ### Opportunities for Flash
 
 1. **Lower-Level Access**
+
    - C++ avoids JavaScript overhead
    - Direct memory management
    - No garbage collection pauses
 
 2. **Compiled Code**
+
    - No JIT warm-up time
    - Predictable performance
    - Better for CPU-bound tasks
@@ -157,13 +166,13 @@ Test Parameters:
 
 ### Realistic Expectations
 
-| Scenario | Express | Flash Target | Confidence |
-|----------|---------|--------------|------------|
-| Hello World | 24,806 | 50,000+ | ✅ High |
-| JSON Response | 24,605 | 45,000+ | ✅ High |
-| Path Params | 24,426 | 48,000+ | ✅ High |
-| Query String | 24,062 | 45,000+ | ✅ Medium |
-| Middleware | 24,479 | 40,000+ | ⚠️ Medium |
+| Scenario      | Express | Flash Target | Confidence |
+| ------------- | ------- | ------------ | ---------- |
+| Hello World   | 24,806  | 50,000+      | ✅ High    |
+| JSON Response | 24,605  | 45,000+      | ✅ High    |
+| Path Params   | 24,426  | 48,000+      | ✅ High    |
+| Query String  | 24,062  | 45,000+      | ✅ Medium  |
+| Middleware    | 24,479  | 40,000+      | ⚠️ Medium  |
 
 **Overall:** We should comfortably achieve 2x improvement on basic operations.  
 **Challenge:** Maintaining 2x improvement with complex middleware chains.
@@ -179,7 +188,7 @@ Express Baseline Performance
 Throughput (req/sec):
 
 Hello World      ████████████████████████ 24,806
-JSON Response    ████████████████████████ 24,605  
+JSON Response    ████████████████████████ 24,605
 Path Parameters  ████████████████████████ 24,426
 Query String     ████████████████████████ 24,062
 Middleware Chain ████████████████████████ 24,479
@@ -196,16 +205,19 @@ Flash Target (2x): ████████████████████�
 ### When Flash Server is Ready
 
 1. **Run Same Benchmarks**
+
    ```bash
    node benchmarks/scripts/benchmark.js
    ```
 
 2. **Compare Results**
+
    - Side-by-side comparison
    - Calculate actual improvement
    - Identify any regressions
 
 3. **Profile Performance**
+
    - Find hot paths
    - Optimize bottlenecks
    - Iterate on improvements
@@ -218,16 +230,19 @@ Flash Target (2x): ████████████████████�
 ### Implementation Priorities
 
 1. **Fix Blocking Server** (P0)
+
    - Implement AsyncWorker pattern
    - Make server non-blocking
    - Enable benchmarking
 
 2. **Run Initial Benchmarks** (P1)
+
    - Compare against this baseline
    - Validate 2x improvement
    - Identify bottlenecks
 
 3. **Optimize Hot Paths** (P2)
+
    - Focus on biggest gains first
    - Profile before optimizing
    - Measure improvements
@@ -262,6 +277,7 @@ benchmarks/results/express-baseline-2025-10-14T07-12-04-246Z.json
 ```
 
 Contains complete benchmark data in JSON format for:
+
 - Programmatic analysis
 - Comparison with Flash results
 - Trend analysis over time

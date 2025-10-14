@@ -21,7 +21,7 @@ The Flash Framework's C++ server implementation has a **blocking architecture** 
 // cpp/src/server.cpp - line 125
 void HttpServer::start() {
     // ... setup code ...
-    
+
     // This loop BLOCKS indefinitely!
     while(running_){
         int client_fd = accept(socket_fd_, ...);  // Blocks waiting for connections
@@ -31,6 +31,7 @@ void HttpServer::start() {
 ```
 
 **Problem:** When called from JavaScript via N-API, this blocks the entire Node.js event loop, causing:
+
 1. Segmentation faults
 2. Inability to handle requests
 3. Cannot run benchmark tests
@@ -40,7 +41,7 @@ void HttpServer::start() {
 This is **by design** for the learning phases:
 
 - ✅ Phase 1: Learn C++ socket programming
-- ✅ Phase 2: Learn N-API integration  
+- ✅ Phase 2: Learn N-API integration
 - ✅ Phase 3: Learn thread pools
 - ❌ **Phase 4/5: Needs async/non-blocking design**
 
@@ -60,6 +61,7 @@ The comments in the code acknowledge this:
 All testing and benchmarking infrastructure is complete:
 
 1. **Benchmark Suite** (410 lines)
+
    - wrk integration
    - 5 benchmark scenarios
    - 3 server implementations
@@ -67,17 +69,20 @@ All testing and benchmarking infrastructure is complete:
    - JSON result generation
 
 2. **Coverage Tools** (164 lines)
+
    - C++ coverage (lcov/gcov)
    - TypeScript coverage (Jest)
    - 80% thresholds
    - HTML reports
 
 3. **Memory Leak Detection** (75 lines)
+
    - Cross-platform (macOS/Linux)
    - Instruments/Valgrind
    - Automated reporting
 
 4. **Documentation** (1,684 lines)
+
    - Complete performance guide
    - Testing methodology
    - Tool setup
@@ -125,7 +130,7 @@ For immediate benchmarking, bypass C++ and use Node.js http module:
 
 ```typescript
 // Temporary benchmark server
-import * as http from 'http';
+import * as http from "http";
 
 const server = http.createServer((req, res) => {
   // Handle with Flash router/middleware
@@ -156,27 +161,27 @@ int main() {
 
 ## 📊 Expected Results (Theoretical)
 
-Based on the architecture, here's what we *would* expect:
+Based on the architecture, here's what we _would_ expect:
 
 ### C++ Advantages
 
-| Component | Express (Node.js) | Flash (C++) | Reason |
-|-----------|-------------------|-------------|---------|
-| Parsing | ~10-20µs | ~5-10µs | No V8 overhead |
-| Routing | ~50-100µs | ~20-30µs | Compiled vs interpreted |
-| Response | ~20-30µs | ~10-15µs | Direct buffer manipulation |
-| **Total** | ~80-150µs | ~35-55µs | **~2-3x faster** |
+| Component | Express (Node.js) | Flash (C++) | Reason                     |
+| --------- | ----------------- | ----------- | -------------------------- |
+| Parsing   | ~10-20µs          | ~5-10µs     | No V8 overhead             |
+| Routing   | ~50-100µs         | ~20-30µs    | Compiled vs interpreted    |
+| Response  | ~20-30µs          | ~10-15µs    | Direct buffer manipulation |
+| **Total** | ~80-150µs         | ~35-55µs    | **~2-3x faster**           |
 
 ### Theoretical Benchmarks
 
-| Scenario | Express | Flash (Est.) | Improvement |
-|----------|---------|--------------|-------------|
-| Hello World | 25,000 rps | 50,000+ rps | 2.0x |
-| JSON Response | 20,000 rps | 40,000+ rps | 2.0x |
-| Path Params | 18,000 rps | 36,000+ rps | 2.0x |
-| Middleware | 15,000 rps | 30,000+ rps | 2.0x |
+| Scenario      | Express    | Flash (Est.) | Improvement |
+| ------------- | ---------- | ------------ | ----------- |
+| Hello World   | 25,000 rps | 50,000+ rps  | 2.0x        |
+| JSON Response | 20,000 rps | 40,000+ rps  | 2.0x        |
+| Path Params   | 18,000 rps | 36,000+ rps  | 2.0x        |
+| Middleware    | 15,000 rps | 30,000+ rps  | 2.0x        |
 
-*Note: These are estimates based on C++ vs Node.js performance characteristics*
+_Note: These are estimates based on C++ vs Node.js performance characteristics_
 
 ---
 
@@ -187,12 +192,14 @@ Based on the architecture, here's what we *would* expect:
 Even though we can't run the benchmarks yet, Phase 5 was still successful:
 
 1. **Professional Testing Infrastructure**
+
    - Industry-standard tools (wrk, Jest, Google Test)
    - Automated workflows
    - Comprehensive documentation
    - Cross-platform support
 
 2. **Best Practices**
+
    - Coverage thresholds
    - Benchmark methodologies
    - Memory leak detection
@@ -207,11 +214,13 @@ Even though we can't run the benchmarks yet, Phase 5 was still successful:
 ### What We Learned
 
 1. **Architecture Matters**
+
    - Blocking vs non-blocking I/O
    - Event loop considerations
    - AsyncWorker patterns
 
 2. **Testing at Scale**
+
    - Load testing with wrk
    - Performance benchmarking
    - Statistical analysis
@@ -303,14 +312,14 @@ benchmarks/scripts/test-servers.js     # ✅ Ready
 
 ## 🎯 Success Criteria Status
 
-| Criterion | Target | Status |
-|-----------|--------|--------|
-| Test Coverage | 80%+ | ✅ Tools ready, can measure |
-| Throughput | 2x Express | ⚠️ Can't test yet |
-| Latency | p99 < 10ms | ⚠️ Can't test yet |
-| Memory Leaks | Zero | ✅ Tools ready |
-| Documentation | Complete | ✅ Done |
-| Automation | Working | ✅ Done |
+| Criterion     | Target     | Status                      |
+| ------------- | ---------- | --------------------------- |
+| Test Coverage | 80%+       | ✅ Tools ready, can measure |
+| Throughput    | 2x Express | ⚠️ Can't test yet           |
+| Latency       | p99 < 10ms | ⚠️ Can't test yet           |
+| Memory Leaks  | Zero       | ✅ Tools ready              |
+| Documentation | Complete   | ✅ Done                     |
+| Automation    | Working    | ✅ Done                     |
 
 ---
 

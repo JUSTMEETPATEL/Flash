@@ -1,11 +1,11 @@
 /**
  * Pure Node.js HTTP Server Benchmark
- * 
+ *
  * Baseline comparison using only Node.js built-in http module
  */
 
-const http = require('http');
-const url = require('url');
+const http = require("http");
+const url = require("url");
 
 // Simple router
 const routes = new Map();
@@ -25,11 +25,11 @@ function matchRoute(method, pathname) {
 
   // Try pattern matching
   for (const [key, handler] of routes.entries()) {
-    const [routeMethod, routePath] = key.split(':');
+    const [routeMethod, routePath] = key.split(":");
     if (routeMethod !== method) continue;
 
-    const routeParts = routePath.split('/');
-    const pathParts = pathname.split('/');
+    const routeParts = routePath.split("/");
+    const pathParts = pathname.split("/");
 
     if (routeParts.length !== pathParts.length) continue;
 
@@ -37,7 +37,7 @@ function matchRoute(method, pathname) {
     let match = true;
 
     for (let i = 0; i < routeParts.length; i++) {
-      if (routeParts[i].startsWith(':')) {
+      if (routeParts[i].startsWith(":")) {
         params[routeParts[i].slice(1)] = pathParts[i];
       } else if (routeParts[i] !== pathParts[i]) {
         match = false;
@@ -61,42 +61,42 @@ function use(middleware) {
 }
 
 // Scenario 1: Hello World
-addRoute('GET', '/hello', (req, res) => {
-  res.writeHead(200, { 'Content-Type': 'text/plain' });
-  res.end('Hello, World!');
+addRoute("GET", "/hello", (req, res) => {
+  res.writeHead(200, { "Content-Type": "text/plain" });
+  res.end("Hello, World!");
 });
 
 // Scenario 2: JSON Response
-addRoute('GET', '/api/user', (req, res) => {
+addRoute("GET", "/api/user", (req, res) => {
   const data = {
     id: 123,
-    name: 'John Doe',
-    email: 'john@example.com',
-    created_at: '2025-01-01T00:00:00Z',
+    name: "John Doe",
+    email: "john@example.com",
+    created_at: "2025-01-01T00:00:00Z",
     active: true,
   };
-  res.writeHead(200, { 'Content-Type': 'application/json' });
+  res.writeHead(200, { "Content-Type": "application/json" });
   res.end(JSON.stringify(data));
 });
 
 // Scenario 3: Path Parameters
-addRoute('GET', '/users/:id', (req, res) => {
+addRoute("GET", "/users/:id", (req, res) => {
   const data = {
     id: req.params.id,
-    type: 'user',
+    type: "user",
   };
-  res.writeHead(200, { 'Content-Type': 'application/json' });
+  res.writeHead(200, { "Content-Type": "application/json" });
   res.end(JSON.stringify(data));
 });
 
 // Scenario 4: Query String
-addRoute('GET', '/search', (req, res) => {
+addRoute("GET", "/search", (req, res) => {
   const data = {
-    query: req.query.q || '',
+    query: req.query.q || "",
     limit: req.query.limit || 10,
     results: [],
   };
-  res.writeHead(200, { 'Content-Type': 'application/json' });
+  res.writeHead(200, { "Content-Type": "application/json" });
   res.end(JSON.stringify(data));
 });
 
@@ -105,7 +105,7 @@ const logger = (req, res, next) => next();
 const auth = (req, res, next) => next();
 const validation = (req, res, next) => next();
 
-addRoute('GET', '/protected', (req, res) => {
+addRoute("GET", "/protected", (req, res) => {
   // Execute middleware chain
   let index = 0;
   const mw = [logger, auth, validation];
@@ -116,10 +116,10 @@ addRoute('GET', '/protected', (req, res) => {
       middleware(req, res, next);
     } else {
       const data = {
-        message: 'Protected resource',
+        message: "Protected resource",
         authenticated: true,
       };
-      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify(data));
     }
   };
@@ -142,8 +142,8 @@ const server = http.createServer((req, res) => {
     req.params = route.params;
     route.handler(req, res);
   } else {
-    res.writeHead(404, { 'Content-Type': 'text/plain' });
-    res.end('Not Found');
+    res.writeHead(404, { "Content-Type": "text/plain" });
+    res.end("Not Found");
   }
 });
 

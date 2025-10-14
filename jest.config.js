@@ -1,20 +1,20 @@
 module.exports = {
-  preset: 'ts-jest',
-  testEnvironment: 'node',
-  roots: ['<rootDir>/tests', '<rootDir>/src'],
-  testMatch: ['**/__tests__/**/*.ts', '**/?(*.)+(spec|test).ts'],
+  preset: "ts-jest",
+  testEnvironment: "node",
+  roots: ["<rootDir>/tests", "<rootDir>/src"],
+  testMatch: ["**/__tests__/**/*.ts", "**/?(*.)+(spec|test).ts"],
   transform: {
-    '^.+\\.ts$': 'ts-jest',
+    "^.+\\.ts$": "ts-jest",
   },
   collectCoverage: true,
-  coverageDirectory: 'coverage',
-  coverageReporters: ['text', 'text-summary', 'lcov', 'html', 'json'],
+  coverageDirectory: "coverage",
+  coverageReporters: ["text", "text-summary", "lcov", "html", "json"],
   collectCoverageFrom: [
-    'src/**/*.ts',
-    '!src/**/*.d.ts',
-    '!src/types/**',
-    '!src/**/*.test.ts',
-    '!src/**/*.spec.ts',
+    "src/**/*.ts",
+    "!src/**/*.d.ts",
+    "!src/types/**",
+    "!src/**/*.test.ts",
+    "!src/**/*.spec.ts",
   ],
   coverageThreshold: {
     global: {
@@ -28,6 +28,6 @@ module.exports = {
   testTimeout: 10000,
   // Module name mapper for handling native bindings in tests
   moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/src/$1',
+    "^@/(.*)$": "<rootDir>/src/$1",
   },
 };

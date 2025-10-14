@@ -1,10 +1,10 @@
 /**
  * Flash Framework Benchmark Server
- * 
+ *
  * Implements all benchmark scenarios using Flash Framework
  */
 
-const { Flash } = require('../../dist/src/index');
+const { Flash } = require("../../dist/src/index");
 
 const app = new Flash({ logger: false });
 
@@ -22,42 +22,42 @@ const validation = (req, res, next) => {
 };
 
 // Scenario 1: Hello World
-app.get('/hello', (req, res) => {
-  res.send('Hello, World!');
+app.get("/hello", (req, res) => {
+  res.send("Hello, World!");
 });
 
 // Scenario 2: JSON Response
-app.get('/api/user', (req, res) => {
+app.get("/api/user", (req, res) => {
   res.json({
     id: 123,
-    name: 'John Doe',
-    email: 'john@example.com',
-    created_at: '2025-01-01T00:00:00Z',
+    name: "John Doe",
+    email: "john@example.com",
+    created_at: "2025-01-01T00:00:00Z",
     active: true,
   });
 });
 
 // Scenario 3: Path Parameters
-app.get('/users/:id', (req, res) => {
+app.get("/users/:id", (req, res) => {
   res.json({
     id: req.params.id,
-    type: 'user',
+    type: "user",
   });
 });
 
 // Scenario 4: Query String
-app.get('/search', (req, res) => {
+app.get("/search", (req, res) => {
   res.json({
-    query: req.query.q || '',
+    query: req.query.q || "",
     limit: req.query.limit || 10,
     results: [],
   });
 });
 
 // Scenario 5: Middleware Chain
-app.get('/protected', logger, auth, validation, (req, res) => {
+app.get("/protected", logger, auth, validation, (req, res) => {
   res.json({
-    message: 'Protected resource',
+    message: "Protected resource",
     authenticated: true,
   });
 });

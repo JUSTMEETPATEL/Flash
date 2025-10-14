@@ -92,13 +92,13 @@ npm run perf
 
 ### Throughput Goals
 
-| Scenario       | Target (req/s) | Baseline (Express) | Improvement |
-| -------------- | -------------- | ------------------ | ----------- |
-| Hello World    | 50,000+        | 25,000             | 2.0x        |
-| JSON Response  | 40,000+        | 20,000             | 2.0x        |
-| Path Params    | 35,000+        | 18,000             | ~2.0x       |
-| Query Strings  | 35,000+        | 18,000             | ~2.0x       |
-| Middleware     | 30,000+        | 15,000             | 2.0x        |
+| Scenario      | Target (req/s) | Baseline (Express) | Improvement |
+| ------------- | -------------- | ------------------ | ----------- |
+| Hello World   | 50,000+        | 25,000             | 2.0x        |
+| JSON Response | 40,000+        | 20,000             | 2.0x        |
+| Path Params   | 35,000+        | 18,000             | ~2.0x       |
+| Query Strings | 35,000+        | 18,000             | ~2.0x       |
+| Middleware    | 30,000+        | 15,000             | 2.0x        |
 
 ### Latency Goals
 
@@ -110,11 +110,11 @@ npm run perf
 
 ### Coverage Goals
 
-| Component      | Target |
-| -------------- | ------ |
-| C++ Code       | 90%+   |
-| TypeScript Code| 85%+   |
-| Overall        | 80%+   |
+| Component       | Target |
+| --------------- | ------ |
+| C++ Code        | 90%+   |
+| TypeScript Code | 85%+   |
+| Overall         | 80%+   |
 
 ### Memory Goals
 
@@ -380,18 +380,21 @@ flash/
 ### What You'll Learn
 
 1. **Performance Testing**
+
    - Load testing with wrk
    - Interpreting benchmark results
    - Statistical significance
    - Performance regression detection
 
 2. **Code Coverage**
+
    - Coverage metrics (lines, branches, functions)
    - Test gap analysis
    - Coverage-driven testing
    - CI integration
 
 3. **Memory Profiling**
+
    - Memory leak detection
    - Allocation patterns
    - Memory growth analysis
