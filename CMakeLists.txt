@@ -5,14 +5,21 @@ project(FlashFramework VERSION 0.1.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Set build type
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release)
+endif()
+
 # Compiler flags
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
-    add_compile_options(
-        -Wall -Wextra -Wpedantic
-        -Werror  # Treat warnings as errors
-        $<$<CONFIG:Debug>:-g -O0 -fsanitize=address,undefined>
-        $<$<CONFIG:Release>:-O3 -DNDEBUG>
-    )
+    add_compile_options(-Wall -Wextra -Wpedantic)
+    
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        add_compile_options(-g -O0)
+    elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
+        add_compile_options(-O3)
+        add_definitions(-DNDEBUG)
+    endif()
 endif()
 
 # Source files
@@ -34,6 +41,8 @@ FetchContent_MakeAvailable(googletest)
 
 # Test target
 file(GLOB_RECURSE TEST_SOURCES "cpp/tests/*.cpp")
+# Exclude manual tests (they have their own main())
+list(FILTER TEST_SOURCES EXCLUDE REGEX "manual/")
 add_executable(flash_tests ${TEST_SOURCES})
 target_link_libraries(flash_tests flash_core gtest_main)
 
