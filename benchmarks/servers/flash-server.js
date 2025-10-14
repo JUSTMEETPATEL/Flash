@@ -4,9 +4,9 @@
  * Implements all benchmark scenarios using Flash Framework
  */
 
-const Flash = require('../../dist/index');
+const { Flash } = require('../../dist/src/index');
 
-const app = new Flash();
+const app = new Flash({ logger: false });
 
 // Middleware for logging (scenario: middleware-chain)
 const logger = (req, res, next) => {
