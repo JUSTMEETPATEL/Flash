@@ -19,6 +19,11 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
     elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
         add_compile_options(-O3)
         add_definitions(-DNDEBUG)
+    elseif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
+        # Coverage build: debug symbols + coverage instrumentation
+        add_compile_options(-g -O0 --coverage -fprofile-arcs -ftest-coverage)
+        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
+        set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} --coverage")
     endif()
 endif()
 
