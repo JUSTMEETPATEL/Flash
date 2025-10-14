@@ -40,11 +40,12 @@ namespace flash {
 // Constructor & Destructor
 // ============================================================================
 
-HttpServer::HttpServer(uint16_t port)
+HttpServer::HttpServer(uint16_t port, size_t num_workers)
     : socket_fd_(-1)
     , port_(port)
     , running_(false)
     , connection_count_(0)
+    , worker_pool_(std::make_unique<WorkerPool>(num_workers))
 {
     // Validate port number
     if (port == 0 || port > 65535) {
@@ -156,16 +157,18 @@ void HttpServer::start() {
 
     std::cout << "[HttpServer] Listening for connections..." << std::endl;
     
+    // Start worker pool for concurrent request handling
+    worker_pool_->start();
+    
     // Set running flag
     running_ = true;
     
-    // TODO (Week 1): Main accept loop
-    // HINT: Loop while running_ is true
+    // Main accept loop - accepts connections and submits to worker pool
     while(running_){
         struct sockaddr_in client_addr;
         socklen_t client_len = sizeof(client_addr);
 
-        // HINT: Use accept() to get new connection
+        // Accept new connection
         int client_fd = accept(socket_fd_, (struct sockaddr*)&client_addr, &client_len);
         if (client_fd < 0) {
             if (errno == EINTR) continue;  // Interrupted, try again
@@ -173,17 +176,17 @@ void HttpServer::start() {
             break;
         }
 
-        // HINT: accept() blocks until a client connects
-        // HINT: Handle EINTR (interrupted system call) by continuing loop
-        // Log client connection (optional)
+        // Log client connection
         char client_ip[INET_ADDRSTRLEN];
         inet_ntop(AF_INET, &client_addr.sin_addr, client_ip, INET_ADDRSTRLEN);
         std::cout << "[HttpServer] Connection from " << client_ip << std::endl;
-        // HINT: Call handle_connection() for each accepted connection
-        handle_connection(client_fd);
-
-        // HINT: Don't forget to close the client socket after handling!
-        close(client_fd);
+        
+        // Submit connection handling to worker pool for concurrent processing
+        // This allows the accept loop to immediately handle the next connection
+        worker_pool_->submit([this, client_fd]() {
+            handle_connection(client_fd);
+            close(client_fd);
+        });
     }
     
     // EXAMPLE STRUCTURE:
@@ -219,12 +222,15 @@ void HttpServer::start() {
 void HttpServer::stop() {
     std::cout << "[HttpServer] Stopping server..." << std::endl;
     
-    // TODO (Week 1): Set running flag to false
-    // HINT: This will cause accept loop to exit
+    // Set running flag to false - causes accept loop to exit
     running_ = false;
     
-    // TODO (Week 1): Close listening socket to unblock accept()
-    // HINT: shutdown(socket_fd_, SHUT_RDWR) or close(socket_fd_)
+    // Shutdown worker pool gracefully - waits for all tasks to complete
+    if (worker_pool_) {
+        worker_pool_->shutdown();
+    }
+    
+    // Close listening socket to unblock accept()
     if(socket_fd_ >= 0){
         shutdown(socket_fd_, SHUT_RDWR);
         close(socket_fd_);

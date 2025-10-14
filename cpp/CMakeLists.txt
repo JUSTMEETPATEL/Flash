@@ -47,6 +47,7 @@ set(FLASH_CORE_SOURCES
     src/http_parser.cpp
     src/http_request.cpp
     src/http_response.cpp
+    src/worker_pool.cpp
     # TODO: Add more source files as you create them
     # src/connection.cpp
 )
@@ -144,6 +145,11 @@ add_custom_target(test-verbose
     COMMAND ${CMAKE_CTEST_COMMAND} --verbose
     DEPENDS flash_tests
 )
+
+# Manual WorkerPool test executable
+add_executable(test_worker_pool_manual tests/manual/test_worker_pool_manual.cpp)
+target_link_libraries(test_worker_pool_manual flash_core)
+target_compile_options(test_worker_pool_manual PRIVATE -pthread)
 
 # Check for memory leaks (macOS)
 if(APPLE)
