@@ -78,22 +78,33 @@ ServerWrap::ServerWrap(const Napi::CallbackInfo& info)
     : Napi::ObjectWrap<ServerWrap>(info) {
     Napi::Env env = info.Env();
     
+    std::cout << "[ServerWrap] Constructor called" << std::endl;
+    
     // Validate arguments
     if (info.Length() < 1) {
         throw Napi::TypeError::New(env, "Expected 1 argument: port number");
     }
     
+    std::cout << "[ServerWrap] Argument count OK" << std::endl;
+    
     if (!info[0].IsNumber()) {
         throw Napi::TypeError::New(env, "Argument must be a number");
     }
     
+    std::cout << "[ServerWrap] Argument is number" << std::endl;
+    
     // Extract port number
     int port = info[0].As<Napi::Number>().Int32Value();
+    
+    std::cout << "[ServerWrap] Port extracted: " << port << std::endl;
     
     // Validate port range
     if (port < 1 || port > 65535) {
         throw Napi::RangeError::New(env, "Port must be between 1 and 65535");
     }
+    
+    std::cout << "[ServerWrap] Port validation passed" << std::endl;
+    std::cout << "[ServerWrap] About to create HttpServer..." << std::endl;
     
     // Create HttpServer instance
     server_ = std::make_unique<HttpServer>(port);
@@ -111,34 +122,46 @@ ServerWrap::ServerWrap(const Napi::CallbackInfo& info)
 // WHAT: Starts the HTTP server
 // WHY: JavaScript calls this to start listening for connections
 //
-// STEP 1: Get environment
-//   Napi::Env env = info.Env();
+// PHASE 5 UPDATE: Now uses AsyncWorker for non-blocking operation!
 //
-// STEP 2: Try to start server
-//   try {
-//       server_->start();  // This will BLOCK - we'll fix in Week 7!
-//   }
+// OLD APPROACH (Week 6):
+//   server_->start();  // This BLOCKS the event loop!
 //
-// STEP 3: Catch exceptions and convert to JavaScript errors
-//   catch (const std::exception& e) {
-//       Napi::Error::New(env, e.what()).ThrowAsJavaScriptException();
-//       return env.Null();
-//   }
+// NEW APPROACH (Phase 5):
+//   Create AsyncWorker that runs server_->start() in background thread
+//   Main thread remains free to handle other events
 //
-// STEP 4: Return undefined on success
-//   return env.Undefined();
-//
-// NOTE: This currently BLOCKS the event loop! In Week 7, we'll use AsyncWorker
-//       to make it non-blocking.
+// HOW IT WORKS:
+// 1. Check if server is already running
+// 2. Create ServerAsyncWorker with server pointer
+// 3. Queue() starts the worker in a background thread
+// 4. Worker calls server_->start() (blocking is OK - it's on worker thread!)
+// 5. Return immediately to JavaScript (non-blocking!)
 //
 // COMPLETE FUNCTION:
 Napi::Value ServerWrap::Start(const Napi::CallbackInfo& info) {
     Napi::Env env = info.Env();
     
+    // Check if server is already running
+    if (server_->is_running()) {
+        Napi::Error::New(env, "Server is already running")
+            .ThrowAsJavaScriptException();
+        return env.Null();
+    }
+    
     try {
-        server_->start();  // This will BLOCK - we'll fix in Week 7!
-        std::cout << "[ServerWrap] Server started successfully!" << std::endl;
+        // Create AsyncWorker to run server in background thread
+        // Note: AsyncWorker deletes itself when work is complete
+        async_worker_ = new ServerAsyncWorker(env, server_.get());
+        
+        // Queue the worker - this starts it in a background thread
+        async_worker_->Queue();
+        
+        std::cout << "[ServerWrap] Server starting in background thread..." << std::endl;
+        
+        // Return immediately - server runs in background!
         return env.Undefined();
+        
     } catch (const std::exception& e) {
         Napi::Error::New(env, e.what()).ThrowAsJavaScriptException();
         return env.Null();

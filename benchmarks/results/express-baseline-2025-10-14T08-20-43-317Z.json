@@ -1,0 +1,50 @@
+{
+  "timestamp": "2025-10-14T08:20:43.316Z",
+  "framework": "Express",
+  "duration": 10,
+  "connections": 100,
+  "threads": 4,
+  "scenarios": [
+    {
+      "scenario": "Hello World",
+      "requestsPerSec": 24936.99,
+      "avgLatency": 4.59,
+      "p50Latency": 3.81,
+      "p99Latency": 6.01,
+      "totalRequests": 251874
+    },
+    {
+      "scenario": "JSON Response",
+      "requestsPerSec": 24865.77,
+      "avgLatency": 4.32,
+      "p50Latency": 3.84,
+      "p99Latency": 5.58,
+      "totalRequests": 251166
+    },
+    {
+      "scenario": "Path Parameters",
+      "requestsPerSec": 24589.6,
+      "avgLatency": 4.39,
+      "p50Latency": 3.88,
+      "p99Latency": 5.77,
+      "totalRequests": 248366
+    },
+    {
+      "scenario": "Query String",
+      "requestsPerSec": 24295.36,
+      "avgLatency": 4.48,
+      "p50Latency": 3.94,
+      "p99Latency": 5.63,
+      "totalRequests": 245487
+    },
+    {
+      "scenario": "Middleware Chain",
+      "requestsPerSec": 24613.25,
+      "avgLatency": 4.41,
+      "p50Latency": 3.87,
+      "p99Latency": 7.17,
+      "totalRequests": 246251
+    }
+  ],
+  "averageThroughput": 24660.194
+}

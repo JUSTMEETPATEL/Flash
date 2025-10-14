@@ -2,6 +2,7 @@
 #include <napi.h>
 #include <memory>
 #include "../include/server.h"
+#include "server_async_worker.h"
 
 namespace flash {
 namespace binding {
@@ -159,6 +160,17 @@ private:
     // HINT 3: Automatically destroyed when ServerWrap is destroyed (RAII)
     //
     std::unique_ptr<HttpServer> server_;
+    
+    // =========================================================================
+    // PHASE 5: AsyncWorker for non-blocking server
+    // =========================================================================
+    // WHAT: Keeps the async worker alive while server is running
+    // WHY: Worker must exist until background thread completes
+    //
+    // NOTE: Raw pointer is OK here because AsyncWorker manages its own lifetime.
+    //       It deletes itself when the work is complete.
+    //
+    ServerAsyncWorker* async_worker_ = nullptr;
     
     // =========================================================================
     // TODO 6.8.6: Store route handlers (Week 7 - Advanced)
