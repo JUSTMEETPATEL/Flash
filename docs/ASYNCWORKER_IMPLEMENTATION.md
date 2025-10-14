@@ -21,17 +21,20 @@
 ### Files Changed
 
 1. **`cpp/binding/server_async_worker.h`** (NEW - 117 lines)
+
    - Created `ServerAsyncWorker` class extending `Napi::AsyncWorker`
    - Runs `server_->start()` in background thread via `Execute()`
    - Handles errors via `OnError()` callback
    - Properly manages thread safety
 
 2. **`cpp/binding/server_wrap.h`** (MODIFIED)
+
    - Added `#include "server_async_worker.h"`
    - Added `ServerAsyncWorker* async_worker_` member
    - Updated comments to reflect AsyncWorker usage
 
 3. **`cpp/binding/server_wrap.cpp`** (MODIFIED)
+
    - Completely rewrote `Start()` method
    - Now creates `ServerAsyncWorker` and calls `Queue()`
    - Returns immediately (non-blocking!)
@@ -51,7 +54,7 @@
 // server_wrap.cpp - OLD
 Napi::Value ServerWrap::Start(const Napi::CallbackInfo& info) {
     Napi::Env env = info.Env();
-    
+
     try {
         server_->start();  // BLOCKS FOREVER!
         // This line never executes!
@@ -64,6 +67,7 @@ Napi::Value ServerWrap::Start(const Napi::CallbackInfo& info) {
 ```
 
 **Problem:**
+
 - ❌ Blocks Node.js event loop indefinitely
 - ❌ Main thread frozen in accept() loop
 - ❌ No other JavaScript can execute
@@ -75,26 +79,26 @@ Napi::Value ServerWrap::Start(const Napi::CallbackInfo& info) {
 // server_wrap.cpp - NEW
 Napi::Value ServerWrap::Start(const Napi::CallbackInfo& info) {
     Napi::Env env = info.Env();
-    
+
     // Check if already running
     if (server_->is_running()) {
         Napi::Error::New(env, "Server is already running")
             .ThrowAsJavaScriptException();
         return env.Null();
     }
-    
+
     try {
         // Create AsyncWorker to run server in background
         async_worker_ = new ServerAsyncWorker(env, server_.get());
-        
+
         // Queue the worker - starts in background thread
         async_worker_->Queue();
-        
+
         std::cout << "[ServerWrap] Server starting in background thread..." << std::endl;
-        
+
         // Return immediately - non-blocking!
         return env.Undefined();
-        
+
     } catch (const std::exception& e) {
         Napi::Error::New(env, e.what()).ThrowAsJavaScriptException();
         return env.Null();
@@ -103,6 +107,7 @@ Napi::Value ServerWrap::Start(const Napi::CallbackInfo& info) {
 ```
 
 **Benefits:**
+
 - ✅ Returns immediately (non-blocking)
 - ✅ Server runs in background thread
 - ✅ Main thread free to handle other events
@@ -120,6 +125,7 @@ $ node benchmarks/scripts/test-minimal.js
 ```
 
 **Output:**
+
 ```
 [Test] Step 1: Loading native module...
 [Addon] Initializing Flash native addon...
@@ -145,6 +151,7 @@ $ node benchmarks/scripts/test-async.js
 ```
 
 **Output:**
+
 ```
 [Test] Creating server on port 5627...
 [ServerWrap] Server created on port 5627
@@ -166,6 +173,7 @@ $ node benchmarks/scripts/test-async.js
 **Result:** ✅ **PASS** - Server starts in background, main thread continues!
 
 **Key Observations:**
+
 1. `Server.start()` returns immediately ✅
 2. Server initialization happens in background ✅
 3. Main thread prints "Main thread is free..." while server is starting ✅
@@ -229,23 +237,28 @@ $ node benchmarks/scripts/test-async.js
 ### Code Flow
 
 1. **JavaScript calls `server.start()`**
+
    - Enters main thread via N-API
 
 2. **ServerWrap::Start() executes**
+
    - Creates `ServerAsyncWorker` with server pointer
    - Calls `async_worker_->Queue()`
    - **Returns immediately** ✅
 
 3. **AsyncWorker queues work**
+
    - N-API schedules `Execute()` on worker thread
    - Main thread continues immediately
 
 4. **Worker thread starts**
+
    - `Execute()` runs on background thread
    - Calls `server_->start()` (blocking is OK here!)
    - Enters accept() loop
 
 5. **Main thread is free**
+
    - Event loop continues
    - Can handle timers, I/O, other requests
    - JavaScript continues executing
@@ -277,12 +290,12 @@ protected:
             SetError(e.what());
         }
     }
-    
+
     // Runs in MAIN THREAD (can call JavaScript)
     void OnOK() override {
         // Server stopped cleanly
     }
-    
+
     // Runs in MAIN THREAD (can call JavaScript)
     void OnError(const Napi::Error& error) override {
         error.ThrowAsJavaScriptException();
@@ -324,6 +337,7 @@ ServerAsyncWorker* async_worker_ = nullptr;
 ### The Missing worker_pool.cpp
 
 **Original binding.gyp:**
+
 ```json
 "sources": [
   "cpp/binding/addon.cpp",
@@ -338,12 +352,14 @@ ServerAsyncWorker* async_worker_ = nullptr;
 ```
 
 **Problem:**
+
 - `HttpServer` constructor creates `WorkerPool`
 - `WorkerPool` code wasn't compiled
 - Resulted in **undefined symbols**
 - Caused **segmentation faults**
 
 **Fix:**
+
 ```json
 "sources": [
   // ... existing files ...
@@ -357,25 +373,27 @@ ServerAsyncWorker* async_worker_ = nullptr;
 
 ## ✅ Success Criteria Met
 
-| Criterion | Before | After | Status |
-|-----------|--------|-------|--------|
-| **Non-Blocking** | ❌ Blocked forever | ✅ Returns immediately | ✅ PASS |
-| **Event Loop** | ❌ Frozen | ✅ Free to run | ✅ PASS |
-| **Segfaults** | ❌ Frequent crashes | ✅ None | ✅ PASS |
-| **Thread Safety** | ⚠️ N/A (not threaded) | ✅ Proper sync | ✅ PASS |
-| **Clean Shutdown** | ❌ Difficult | ✅ Works | ✅ PASS |
-| **Memory Leaks** | ⚠️ Unknown | ✅ RAII + AsyncWorker | ✅ PASS |
+| Criterion          | Before                | After                  | Status  |
+| ------------------ | --------------------- | ---------------------- | ------- |
+| **Non-Blocking**   | ❌ Blocked forever    | ✅ Returns immediately | ✅ PASS |
+| **Event Loop**     | ❌ Frozen             | ✅ Free to run         | ✅ PASS |
+| **Segfaults**      | ❌ Frequent crashes   | ✅ None                | ✅ PASS |
+| **Thread Safety**  | ⚠️ N/A (not threaded) | ✅ Proper sync         | ✅ PASS |
+| **Clean Shutdown** | ❌ Difficult          | ✅ Works               | ✅ PASS |
+| **Memory Leaks**   | ⚠️ Unknown            | ✅ RAII + AsyncWorker  | ✅ PASS |
 
 ---
 
 ## 📊 Performance Impact
 
 ### Before (Blocking)
+
 - **Main Thread:** Blocked 100% in accept()
 - **Other Work:** Impossible
 - **Benchmarking:** Impossible (crashes)
 
 ### After (AsyncWorker)
+
 - **Main Thread:** Free 100% for other work
 - **Worker Thread:** Handles connections
 - **Benchmarking:** Now possible! ✅
@@ -398,14 +416,17 @@ With AsyncWorker implemented, we can now:
 ## 📝 Code Changes Summary
 
 ### New Files (1)
+
 - `cpp/binding/server_async_worker.h` - AsyncWorker implementation (117 lines)
 
 ### Modified Files (3)
-- `cpp/binding/server_wrap.h` - Added async_worker_ member
+
+- `cpp/binding/server_wrap.h` - Added async*worker* member
 - `cpp/binding/server_wrap.cpp` - Rewrote Start() method
 - `binding.gyp` - Added worker_pool.cpp to sources
 
 ### Total Changes
+
 - **Lines Added:** ~150
 - **Lines Modified:** ~40
 - **Build Time:** ~2 seconds
@@ -418,16 +439,19 @@ With AsyncWorker implemented, we can now:
 ### What We Learned
 
 1. **AsyncWorker Pattern**
+
    - How to run blocking code in background
    - Thread communication via N-API
    - Proper lifecycle management
 
 2. **Thread Safety**
+
    - Main thread vs worker thread
    - When blocking is acceptable
    - Cross-thread synchronization
 
 3. **Debugging**
+
    - Found missing worker_pool.cpp
    - Added debug logging strategically
    - Isolated segfault to constructor
@@ -444,11 +468,13 @@ With AsyncWorker implemented, we can now:
 ### What Still Needs Work
 
 1. **HTTP Request Handling**
+
    - C++ server accepts connections
    - But doesn't parse HTTP requests yet
    - Need to integrate HttpParser
 
 2. **Response Generation**
+
    - Can't send HTTP responses yet
    - Need HttpResponse integration
 
@@ -461,12 +487,14 @@ With AsyncWorker implemented, we can now:
 The AsyncWorker implementation is **complete and correct**. The HTTP handling is a **separate concern** that will be addressed in integration work.
 
 **What we proved:**
+
 - ✅ Server can start without blocking
 - ✅ Background threading works correctly
 - ✅ No segfaults or crashes
 - ✅ Proper shutdown works
 
 **What's next:**
+
 - Connect HttpParser to accept() loop
 - Integrate HttpResponse generation
 - Bridge TypeScript routes to C++ handlers
