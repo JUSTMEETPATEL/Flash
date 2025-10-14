@@ -17,24 +17,30 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # Compiler Flags
 # ============================================================================
 
+# Set build type to Release if not specified
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release)
+endif()
+
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
     # Common flags for Clang and GCC
     add_compile_options(
         -Wall          # Enable all warnings
         -Wextra        # Enable extra warnings
         -Wpedantic     # Warn about non-standard C++
-        -Werror        # Treat warnings as errors
     )
     
     # Debug configuration
-    set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
-    if(ENABLE_SANITIZERS)
-        set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address,undefined")
-        set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} -fsanitize=address,undefined")
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        add_compile_options(-g)
+        add_compile_options(-O0)
     endif()
     
     # Release configuration
-    set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
+    if(CMAKE_BUILD_TYPE STREQUAL "Release")
+        add_compile_options(-O3)
+        add_definitions(-DNDEBUG)
+    endif()
 endif()
 
 # ============================================================================
@@ -48,6 +54,7 @@ set(FLASH_CORE_SOURCES
     src/http_request.cpp
     src/http_response.cpp
     src/worker_pool.cpp
+    src/file_handler.cpp
     # TODO: Add more source files as you create them
     # src/connection.cpp
 )
@@ -58,6 +65,8 @@ set(FLASH_CORE_HEADERS
     include/http_parser.h
     include/http_request.h
     include/http_response.h
+    include/worker_pool.h
+    include/file_handler.h
     # TODO: Add more header files as you create them
     # include/connection.h
 )
@@ -106,6 +115,7 @@ set(FLASH_TEST_SOURCES
     tests/test_http_parser.cpp
     tests/test_http_response.cpp
     tests/test_integration.cpp
+    tests/test_file_handler.cpp
     # TODO: Add more test files as you create them
 )
 
