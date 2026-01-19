@@ -113,8 +113,6 @@ bool HttpParser::parse_request_line(const std::string& line, HttpRequest& reques
     request.path = path;
     request.version = version;
     
-    std::cout << "[HttpParser] Parsed: " << method << " " << path << " " << version << std::endl;
-    
     return true;
 }
 
@@ -144,7 +142,6 @@ bool HttpParser::parse_header(const std::string& line, HttpRequest& request) {
     // HINT: Store in headers map
     if (!name.empty()) {
         request.headers[name] = value;
-        std::cout << "[HttpParser] Header: " << name << " = " << value << std::endl;
     }
     
     return true;

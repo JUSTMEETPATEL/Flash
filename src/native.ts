@@ -21,7 +21,6 @@ function getErrorMessage(error: unknown): string {
 let nativeAddon: any;
 try {
   nativeAddon = require("../build/Release/flash_native.node");
-  console.log("[Flash] Native addon loaded successfully");
 } catch (error) {
   throw new Error(
     'Failed to load Flash native addon. Make sure to run "npm run build:cpp" first.\n' +

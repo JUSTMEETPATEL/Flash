@@ -43,8 +43,6 @@ Napi::Object ServerWrap::Init(Napi::Env env, Napi::Object exports) {
     // Export the constructor so JavaScript can use it
     exports.Set("Server", func);
     
-    std::cout << "[ServerWrap] Server class registered!" << std::endl;
-    
     return exports;
 }
 
@@ -72,44 +70,29 @@ Napi::Object ServerWrap::Init(Napi::Env env, Napi::Object exports) {
 //
 // STEP 5: Create HttpServer instance
 //   server_ = std::make_unique<HttpServer>(port, 4);  // port, worker count
-//
-// COMPLETE CONSTRUCTOR:
 ServerWrap::ServerWrap(const Napi::CallbackInfo& info) 
     : Napi::ObjectWrap<ServerWrap>(info) {
     Napi::Env env = info.Env();
-    
-    std::cout << "[ServerWrap] Constructor called" << std::endl;
     
     // Validate arguments
     if (info.Length() < 1) {
         throw Napi::TypeError::New(env, "Expected 1 argument: port number");
     }
     
-    std::cout << "[ServerWrap] Argument count OK" << std::endl;
-    
     if (!info[0].IsNumber()) {
         throw Napi::TypeError::New(env, "Argument must be a number");
     }
     
-    std::cout << "[ServerWrap] Argument is number" << std::endl;
-    
     // Extract port number
     int port = info[0].As<Napi::Number>().Int32Value();
-    
-    std::cout << "[ServerWrap] Port extracted: " << port << std::endl;
     
     // Validate port range
     if (port < 1 || port > 65535) {
         throw Napi::RangeError::New(env, "Port must be between 1 and 65535");
     }
     
-    std::cout << "[ServerWrap] Port validation passed" << std::endl;
-    std::cout << "[ServerWrap] About to create HttpServer..." << std::endl;
-    
     // Create HttpServer instance
     server_ = std::make_unique<HttpServer>(port);
-    
-    std::cout << "[ServerWrap] Server created on port " << port << std::endl;
 }
 
 // =============================================================================
@@ -157,8 +140,6 @@ Napi::Value ServerWrap::Start(const Napi::CallbackInfo& info) {
         // Queue the worker - this starts it in a background thread
         async_worker_->Queue();
         
-        std::cout << "[ServerWrap] Server starting in background thread..." << std::endl;
-        
         // Return immediately - server runs in background!
         return env.Undefined();
         
@@ -197,7 +178,6 @@ Napi::Value ServerWrap::Stop(const Napi::CallbackInfo& info) {
     
     try {
         server_->stop();
-        std::cout << "[ServerWrap] Server stopped successfully!" << std::endl;
         return env.Undefined();
     } catch (const std::exception& e) {
         Napi::Error::New(env, e.what()).ThrowAsJavaScriptException();
