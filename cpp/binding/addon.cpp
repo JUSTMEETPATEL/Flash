@@ -34,7 +34,6 @@ using namespace flash::binding;
 // COMPLETE FUNCTION:
 Napi::Object Init(Napi::Env env, Napi::Object exports) {
     // TODO 5.5.1: Call ServerWrap::Init() to register the Flash server class
-    std::cout << "[Addon] Initializing Flash native addon..." << std::endl;
     return ServerWrap::Init(env, exports);
 }
 

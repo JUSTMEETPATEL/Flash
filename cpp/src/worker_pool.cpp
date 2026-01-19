@@ -18,8 +18,6 @@ WorkerPool::WorkerPool(size_t num_workers)
             num_workers_ = 4; // Fallback if detection fails
         }
     }
-    
-    std::cout << "[WorkerPool] Creating pool with " << num_workers_ << " workers" << std::endl;
 }
 
 // ============================================================================
@@ -47,8 +45,6 @@ void WorkerPool::start() {
     for (size_t i = 0; i < num_workers_; ++i) {
         workers_.emplace_back(&WorkerPool::worker_thread, this);
     }
-    
-    std::cout << "[WorkerPool] Started " << num_workers_ << " workers" << std::endl;
 }
 
 // ============================================================================
@@ -119,8 +115,6 @@ bool WorkerPool::submit(Task task) {
 // Gracefully shutdown worker pool
 // ============================================================================
 void WorkerPool::shutdown() {
-    std::cout << "[WorkerPool] Shutting down..." << std::endl;
-    
     // Signal all workers to exit
     shutdown_requested_ = true;
     
@@ -137,7 +131,6 @@ void WorkerPool::shutdown() {
     }
     
     running_ = false;
-    std::cout << "[WorkerPool] Shutdown complete" << std::endl;
 }
 
 // ============================================================================

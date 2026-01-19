@@ -213,10 +213,20 @@ private:
     std::unique_ptr<WorkerPool> worker_pool_;
     
     // Maximum connections to queue in listen()
-    static constexpr int LISTEN_BACKLOG = 128;
+    static constexpr int LISTEN_BACKLOG = 1024;
     
     // Buffer size for reading requests
     static constexpr size_t READ_BUFFER_SIZE = 8192;  // 8KB
+    
+    // Socket buffer sizes for performance
+    static constexpr int SOCKET_SEND_BUFFER = 65536;  // 64KB
+    static constexpr int SOCKET_RECV_BUFFER = 65536;  // 64KB
+    
+    // Keep-alive timeout in seconds
+    static constexpr int KEEPALIVE_TIMEOUT = 5;
+    
+    // Maximum requests per keep-alive connection
+    static constexpr int MAX_KEEPALIVE_REQUESTS = 1000;
 };
 
 } // namespace flash

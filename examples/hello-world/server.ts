@@ -1,8 +1,8 @@
-import { Flash } from "../../src";
+import { Flash, Request, Response } from "../../src";
 
-const app = new Flash({ port: 3000, logger: true, cors: true });
+const app = new Flash({ port: 3000, logger: true });
 
-app.get("/", (req, res) => {
+app.get("/", (req: Request, res: Response) => {
   res.json({
     message: "Hello from Flash Framework!",
     timestamp: new Date().toISOString(),
@@ -10,11 +10,11 @@ app.get("/", (req, res) => {
   });
 });
 
-app.get("/health", (req, res) => {
+app.get("/health", (req: Request, res: Response) => {
   res.json({ status: "ok", uptime: process.uptime() });
 });
 
-app.get("/api/users/:id", (req, res) => {
+app.get("/api/users/:id", (req: Request, res: Response) => {
   const userId = req.params.id;
   res.json({
     id: userId,

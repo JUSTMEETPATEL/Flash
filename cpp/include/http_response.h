@@ -64,6 +64,13 @@ public:
     HttpResponse& set_body(const std::string& body);
     
     /**
+     * @brief Set keep-alive connection mode
+     * @param keep_alive true to keep connection open, false to close
+     * @return Reference to this for method chaining
+     */
+    HttpResponse& set_keep_alive(bool keep_alive);
+    
+    /**
      * @brief Serialize response to HTTP format
      * 
      * Automatically adds:
@@ -111,6 +118,7 @@ private:
     std::unordered_map<std::string, std::string> headers_;
     std::string body_;
     std::string version_;  // HTTP version (default: HTTP/1.1)
+    bool keep_alive_;      // Keep connection open (default: true)
 };
 
 // ============================================================================

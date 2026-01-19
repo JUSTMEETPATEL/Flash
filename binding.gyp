@@ -9,7 +9,8 @@
         "cpp/src/server.cpp",
         "cpp/src/http_parser.cpp",
         "cpp/src/http_request.cpp",
-        "cpp/src/http_response.cpp"
+        "cpp/src/http_response.cpp",
+        "cpp/src/worker_pool.cpp"
       ],
       "include_dirs": [
         "<!@(node -p \"require('node-addon-api').include\")",

@@ -12,7 +12,8 @@ namespace flash {
 HttpResponse::HttpResponse() 
     : status_code_(200)
     , reason_phrase_("OK")
-    , version_("HTTP/1.1") {
+    , version_("HTTP/1.1")
+    , keep_alive_(true) {  // Default to keep-alive for performance
 }
 
 HttpResponse& HttpResponse::set_status(int code, const std::string& reason) {
@@ -28,6 +29,11 @@ HttpResponse& HttpResponse::set_header(const std::string& name, const std::strin
 
 HttpResponse& HttpResponse::set_body(const std::string& body) {
     body_ = body;
+    return *this;
+}
+
+HttpResponse& HttpResponse::set_keep_alive(bool keep_alive) {
+    keep_alive_ = keep_alive;
     return *this;
 }
 
@@ -54,7 +60,7 @@ std::string HttpResponse::serialize() const {
     
     // Add Connection header if not set
     if (headers_.find("Connection") == headers_.end()) {
-        oss << "Connection: close\r\n";
+        oss << "Connection: " << (keep_alive_ ? "keep-alive" : "close") << "\r\n";
     }
     
     // Blank line to separate headers from body
