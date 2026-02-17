@@ -17,14 +17,17 @@ function getErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
-// STEP 1: Load native addon with error handling
-let nativeAddon: any;
+// STEP 1: Load native addon with graceful fallback
+let nativeAddon: any = null;
 try {
   nativeAddon = require("../build/Release/flash_native.node");
 } catch (error) {
-  throw new Error(
-    'Failed to load Flash native addon. Make sure to run "npm run build:cpp" first.\n' +
-      `Original error: ${getErrorMessage(error)}`
+  // Native addon is optional — the main Flash class uses Node's http module.
+  // Only warn if the user explicitly tries to use the native wrapper.
+  console.warn(
+    '[Flash] Native C++ addon not available. The core Flash API works fine without it.\n' +
+    '        To enable the native server, run: npm run build:cpp\n' +
+    `        (${getErrorMessage(error)})`
   );
 }
 
@@ -41,18 +44,22 @@ export interface NativeAddon {
 }
 
 // STEP 3: Type assertion and validation
-const addon = nativeAddon as NativeAddon;
-
-// Validate that required exports exist
-if (!addon.Server) {
-  throw new Error("Native addon missing Server class export");
-}
+const addon = nativeAddon as NativeAddon | null;
 
 // STEP 4: Create wrapper class with error handling
 export class NativeServerWrapper implements NativeServer {
   private nativeServer: NativeServer;
 
   constructor(port: number) {
+    if (!addon || !addon.Server) {
+      throw new Error(
+        'Flash native C++ addon is not available.\n' +
+        'The native server requires a C++ compiler (Clang 12+ or GCC 10+).\n' +
+        'To build the native addon, run: npm run build:cpp\n' +
+        'Alternatively, use the standard Flash class which works without C++:\n' +
+        '  import { Flash } from "flash-framework";'
+      );
+    }
     try {
       this.nativeServer = new addon.Server(port);
     } catch (error) {
