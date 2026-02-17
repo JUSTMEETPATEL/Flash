@@ -1,4 +1,6 @@
 import { CodeBlock } from "@/components/ui/code-block";
+import { ArchitectureDiagram } from "@/components/docs/ArchitectureDiagram";
+import { RequestLifecycle } from "@/components/docs/RequestLifecycle";
 
 export default function ArchitecturePage() {
   return (
@@ -32,6 +34,8 @@ export default function ArchitecturePage() {
 └──────────────┴───────────────────────────┘`}
       />
 
+      <ArchitectureDiagram />
+
       <h2>The Two Modes</h2>
 
       <h3>Standard Mode (Default)</h3>
@@ -62,6 +66,9 @@ server.start();`}
 
       <h2>Request Lifecycle</h2>
       <p>Here&apos;s how a request flows through Flash in standard mode:</p>
+      
+      <RequestLifecycle />
+      
       <CodeBlock
         language="bash"
         code={`Client Request

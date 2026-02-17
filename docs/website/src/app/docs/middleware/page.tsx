@@ -1,4 +1,5 @@
 import { CodeBlock } from "@/components/ui/code-block";
+import { MiddlewareFlow } from "@/components/docs/MiddlewareFlow";
 
 export default function MiddlewarePage() {
   return (
@@ -17,6 +18,8 @@ export default function MiddlewarePage() {
         language="bash"
         code="Request  →  Middleware 1  →  Middleware 2  →  Route Handler  →  Response"
       />
+
+      <MiddlewareFlow />
 
       <h2>Using Middleware</h2>
       <p>
