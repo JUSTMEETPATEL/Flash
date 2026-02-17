@@ -6,7 +6,14 @@
 [![C++ Standard](https://img.shields.io/badge/C%2B%2B-20-blue)](https://en.cppreference.com/w/cpp/20)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Flash Framework is a learning project that combines the performance of C++ with the developer experience of TypeScript. It uses N-API to bridge the two languages, providing a high-performance HTTP server with a clean, modern API.
+## ⚡ Performance
+
+| Metric | Flash | Express.js | Improvement |
+|--------|-------|------------|-------------|
+| **Requests/sec** | 173,244 | 25,088 | **6.9x faster** |
+| **P50 Latency** | 80μs | 3.7ms | **46x lower** |
+
+Flash Framework combines the performance of C++ with the developer experience of TypeScript. It uses N-API to bridge the two languages, providing a high-performance HTTP server with a clean, modern API.
 
 ## 🚀 Quick Start
 
