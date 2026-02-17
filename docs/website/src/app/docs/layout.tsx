@@ -1,5 +1,6 @@
 import { Navbar } from "@/components/Navbar";
 import { Sidebar } from "@/components/docs/Sidebar";
+import { CopyPageButton } from "@/components/ui/copy-page-button";
 
 export default function DocsLayout({
   children,
@@ -15,7 +16,12 @@ export default function DocsLayout({
         </aside>
         <main className="relative py-6 lg:gap-10 lg:py-8 xl:grid xl:grid-cols-[1fr_200px]">
           <div className="mx-auto w-full min-w-0">
-             {children}
+             <div className="mb-4 flex justify-end">
+                <CopyPageButton />
+             </div>
+             <div id="docs-content">
+                {children}
+             </div>
           </div>
         </main>
       </div>

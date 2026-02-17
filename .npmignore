@@ -1,0 +1,64 @@
+# Source (TypeScript is compiled to dist/)
+src/
+
+# Tests
+tests/
+cpp/tests/
+*.test.ts
+*.spec.ts
+jest.config.js
+.eslintrc.js
+
+# Development docs
+docs/
+benchmarks/
+scripts/
+examples/
+DEVELOPMENT.md
+DOCKER_BUILD_FIXED.md
+DOCKER_FIX.md
+DOCKER_TROUBLESHOOTING.md
+NEXT_STEPS.md
+PHASE1_GUIDE.md
+PHASE1_QUICK_START.md
+PHASE1_TODO.md
+QUICK_REFERENCE.md
+SETUP_COMPLETE.md
+SOCKET_REFERENCE.md
+START_HERE.md
+WEEK1_TESTING.md
+WEEK1_TEST_RESULTS.md
+WEEK2_COMPLETE.md
+WEEK2_STATUS.md
+CHANGELOG.md
+
+# Build/CI configuration
+.github/
+.vscode/
+CMakeLists.txt
+Dockerfile
+Dockerfile.dev
+docker-compose.yml
+Makefile
+tsconfig.json
+
+# Shell scripts
+*.sh
+
+# OS files
+.DS_Store
+.gitignore
+
+# Coverage & logs
+coverage/
+*.lcov
+*.log
+
+# Docker
+.dockerignore
+
+# Temporary
+tmp/
+temp/
+.cache/
+.next/
