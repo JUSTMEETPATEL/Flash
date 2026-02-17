@@ -15,79 +15,49 @@
 
 Flash Framework combines the performance of C++ with the developer experience of TypeScript. It uses N-API to bridge the two languages, providing a high-performance HTTP server with a clean, modern API.
 
-## 🚀 Quick Start
+### Prerequisites
 
-### Using Docker (Recommended for Development)
+- **Node.js 20+**
+- **Docker** (Recommended) OR **C++20 Compiler** (Clang 12+ / GCC 10+)
+- **CMake 3.20+**
+
+### 🐳 Docker Quick Start (Recommended)
+
+The easiest way to start developing with Flash is using the provided Docker environment, which includes hot-reloading, debugging, and all dependencies.
 
 ```bash
 # Clone the repository
-git clone <repository-url>
-cd flash-framework
+git clone https://github.com/JUSTMEETPATEL/Flash.git
+cd Flash
 
-# Run the development setup script
+# Set up development environment
 ./dev-setup.sh
 
-# Start development environment
+# Start development container
 npm run docker:dev
 ```
 
-The development environment includes:
+- **Server:** http://localhost:3000
+- **Debug Port:** 9229
 
-- ✅ Hot reloading for TypeScript changes
-- ✅ Volume mounting for live code editing
-- ✅ Debug port (9229) for Node.js debugging
-- ✅ Redis for caching (optional)
-- ✅ All development dependencies pre-installed
+### 🛠️ Manual Setup (macOS/Linux)
 
-**Access Points:**
-
-- Server: http://localhost:3000
-- Debug: localhost:9229
-- Redis: localhost:6379 (if enabled)
-
-### Manual Setup
-
-#### Prerequisites
-
-- **Node.js 20+** with npm
-- **CMake 3.20+**
-- **C++20 compatible compiler** (Clang 12+ or GCC 10+)
-- **Python 3.x** (for node-gyp)
-
-#### macOS Setup
+If you prefer running natively:
 
 ```bash
-# Install dependencies
+# 1. Install Dependencies
+# macOS
 brew install node cmake llvm python3
-
-# Clone and setup
-git clone <repository-url>
-cd flash-framework
-npm install
-
-# Build the project
-npm run build
-
-# Run example
-npm run dev
-```
-
-#### Linux Setup
-
-```bash
-# Install dependencies (Ubuntu/Debian)
-sudo apt update
+# Ubuntu/Debian
 sudo apt install -y build-essential cmake clang nodejs npm python3
 
-# Clone and setup
-git clone <repository-url>
-cd flash-framework
+# 2. Setup Project
+git clone https://github.com/JUSTMEETPATEL/Flash.git
+cd Flash
 npm install
 
-# Build the project
+# 3. Build & Run
 npm run build
-
-# Run example
 npm run dev
 ```
 
