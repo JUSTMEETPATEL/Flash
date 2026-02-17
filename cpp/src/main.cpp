@@ -63,9 +63,13 @@ int main(int argc, char* argv[]) {
     std::cout << std::endl;
     
     try {
-        // Create server
+        // Create server with 2x CPU cores for maximum throughput
+        size_t num_workers = std::thread::hardware_concurrency() * 2;
+        if (num_workers == 0) num_workers = 8;  // Fallback
+        
         std::cout << "[Main] Creating HTTP server on port " << port << "..." << std::endl;
-        g_server = std::make_unique<flash::HttpServer>(port);
+        std::cout << "[Main] Worker threads: " << num_workers << std::endl;
+        g_server = std::make_unique<flash::HttpServer>(port, num_workers);
         
         std::cout << "[Main] Server created successfully" << std::endl;
         std::cout << "[Main] Press Ctrl+C to stop" << std::endl;

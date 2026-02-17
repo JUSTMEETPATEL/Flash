@@ -256,9 +256,9 @@ TEST_F(HttpResponseTest, ServerHeaderAutoAdded) {
     EXPECT_NE(result.find("Server: Flash/0.1"), std::string::npos);
 }
 
-TEST_F(HttpResponseTest, ConnectionCloseAutoAdded) {
+TEST_F(HttpResponseTest, ConnectionKeepAliveAutoAdded) {
     std::string result = response_->serialize();
-    EXPECT_NE(result.find("Connection: close"), std::string::npos);
+    EXPECT_NE(result.find("Connection: keep-alive"), std::string::npos);
 }
 
 TEST_F(HttpResponseTest, CanOverrideDefaultHeaders) {
