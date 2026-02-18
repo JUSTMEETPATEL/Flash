@@ -38,7 +38,12 @@ export function Footer() {
         </div>
         
         <div className="mt-12 border-t border-border/20 pt-8 text-center text-xs text-zinc-600">
-          © {new Date().getFullYear()} Flash Framework. MIT License.
+          <p>Created by{" "}
+            <Link href="https://meetpatel.live" target="_blank" className="text-zinc-400 hover:text-primary transition-colors">
+              Meet Patel
+            </Link>
+          </p>
+          <p className="mt-1">© {new Date().getFullYear()} Flash Framework. MIT License.</p>
         </div>
       </div>
     </footer>

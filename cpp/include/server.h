@@ -22,6 +22,7 @@
 #include <string>
 #include <memory>
 #include <cstdint>
+#include <atomic>
 #include "worker_pool.h"
 
 namespace flash {
@@ -203,11 +204,11 @@ private:
     // Port number to bind to
     uint16_t port_;
     
-    // Flag to signal server shutdown
-    bool running_;
+    // Flag to signal server shutdown (accessed from multiple threads)
+    std::atomic<bool> running_;
     
-    // Number of active connections (for statistics)
-    size_t connection_count_;
+    // Number of active connections (accessed from worker threads)
+    std::atomic<size_t> connection_count_;
     
     // Worker pool for concurrent request handling
     std::unique_ptr<WorkerPool> worker_pool_;

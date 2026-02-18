@@ -178,6 +178,9 @@ Napi::Value ServerWrap::Stop(const Napi::CallbackInfo& info) {
     
     try {
         server_->stop();
+        // AsyncWorker self-deletes after Execute() completes.
+        // Null the pointer to prevent use-after-free on restart.
+        async_worker_ = nullptr;
         return env.Undefined();
     } catch (const std::exception& e) {
         Napi::Error::New(env, e.what()).ThrowAsJavaScriptException();

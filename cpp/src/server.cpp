@@ -137,8 +137,9 @@ HttpServer::~HttpServer() {
 HttpServer::HttpServer(HttpServer&& other) noexcept
     : socket_fd_(other.socket_fd_)
     , port_(other.port_)
-    , running_(other.running_)
-    , connection_count_(other.connection_count_)
+    , running_(other.running_.load())
+    , connection_count_(other.connection_count_.load())
+    , worker_pool_(std::move(other.worker_pool_))
 {
     // Take ownership of socket from other
     other.socket_fd_ = -1;
@@ -156,8 +157,9 @@ HttpServer& HttpServer::operator=(HttpServer&& other) noexcept {
         // Take ownership from other
         socket_fd_ = other.socket_fd_;
         port_ = other.port_;
-        running_ = other.running_;
-        connection_count_ = other.connection_count_;
+        running_ = other.running_.load();
+        connection_count_ = other.connection_count_.load();
+        worker_pool_ = std::move(other.worker_pool_);
         
         // Leave other in valid state
         other.socket_fd_ = -1;

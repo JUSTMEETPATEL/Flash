@@ -317,6 +317,15 @@ The documentation site is a **Next.js** application located in `docs/website/`. 
 
 ---
 
+## Author
+
+Created by **Meet Patel**
+
+- Website: [meetpatel.live](https://meetpatel.live)
+- GitHub: [JUSTMEETPATEL](https://github.com/JUSTMEETPATEL)
+
+---
+
 ## License
 
 MIT License. See [LICENSE](./LICENSE) for details.
