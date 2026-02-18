@@ -8,10 +8,22 @@
 
 ## ⚡ Performance
 
-| Metric | Flash | Express.js | Improvement |
-|--------|-------|------------|-------------|
-| **Requests/sec** | 173,244 | 25,088 | **6.9x faster** |
-| **P50 Latency** | 80μs | 3.7ms | **46x lower** |
+Benchmarked with `wrk` (4 threads, 100 connections, 10s duration) on Node.js v23.
+
+**Raw C++ I/O** — Static pre-computed responses handled entirely in C++ (TCP + socket write):
+
+| Metric       | Flash   | Express.js | Improvement     |
+| ------------ | ------- | ---------- | --------------- |
+| Requests/sec | 152,988 | 25,088     | **6.1x faster** |
+| P50 Latency  | 84μs    | 3.70ms     | **44x lower**   |
+
+**Dynamic Responses** — Route matching + response building in C++:
+
+| Metric       | Flash  | Express.js | Improvement           |
+| ------------ | ------ | ---------- | --------------------- |
+| Requests/sec | 24,598 | 24,476     | **~1x (parity)**      |
+
+> The raw I/O benchmark measures the C++ TCP layer's throughput with zero-copy static responses. The dynamic benchmark includes HTTP parsing, route matching, and response serialization — where Flash matches Express. Real-world performance depends on handler complexity (database calls, business logic), which is the bottleneck in both frameworks.
 
 Flash Framework combines the performance of C++ with the developer experience of TypeScript. It uses N-API to bridge the two languages, providing a high-performance HTTP server with a clean, modern API.
 

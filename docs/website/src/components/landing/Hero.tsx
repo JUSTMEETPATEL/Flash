@@ -37,7 +37,7 @@ export function Hero() {
           <p className="mt-4 text-lg md:text-xl text-zinc-400 max-w-2xl mx-auto mb-10">
             Build high-performance HTTP servers with the raw power of C++ and the developer experience of Node.js.
             <span className="block mt-2 text-primary font-semibold">
-              173,000 requests per second.
+              153,000 requests per second.
             </span>
           </p>
           <div className="flex flex-col md:flex-row gap-4 justify-center items-center mb-16">

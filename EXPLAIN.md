@@ -12,8 +12,8 @@ The framework was built from scratch starting October 2025 as a systems programm
 
 | Metric       | Flash   | Express.js | Improvement |
 | ------------ | ------- | ---------- | ----------- |
-| Requests/sec | 173,244 | 25,088     | 6.9x faster |
-| P50 Latency  | 80μs   | 3.7ms      | 46x lower   |
+| Requests/sec | 152,988 | 25,088     | 6.1x faster |
+| P50 Latency  | 84μs   | 3.7ms      | 44x lower   |
 
 These numbers come from the C++ layer handling raw TCP I/O and HTTP parsing at native speed, while the TypeScript layer provides developer ergonomics without adding meaningful overhead.
 

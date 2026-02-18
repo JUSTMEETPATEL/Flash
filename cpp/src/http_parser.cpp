@@ -1,172 +1,123 @@
 /**
  * @file http_parser.cpp
- * @brief Implementation of HTTP request parser
+ * @brief Zero-copy HTTP request parser
  * 
- * WEEK 2 IMPLEMENTATION GUIDE:
- * This file contains the parser logic with TODOs for you to complete.
+ * Performance-optimized: parses directly from the raw char* buffer using
+ * pointer arithmetic and memchr(). No std::string copies, no istringstream,
+ * no getline. All scanning uses memchr() which is SIMD-optimized on most
+ * platforms.
  */
 
 #include "http_parser.h"
-#include <iostream>
-#include <sstream>
-#include <algorithm>
+#include <cstring>
 
 namespace flash {
 
+// Find \r\n in buffer using memchr (SIMD-optimized on most platforms)
+static inline const char* find_crlf(const char* buf, size_t len) {
+    const char* end = buf + len;
+    while (buf < end - 1) {
+        const char* cr = static_cast<const char*>(memchr(buf, '\r', end - buf - 1));
+        if (!cr) return nullptr;
+        if (cr[1] == '\n') return cr;
+        buf = cr + 1;
+    }
+    return nullptr;
+}
+
 std::optional<HttpRequest> HttpParser::parse(const char* data, size_t length) {
-    // TODO (Week 2): Implement HTTP request parsing
-    // HINT: Convert data to string for easier manipulation
-    std::string request_str(data, length);
-    
-    // HINT: Create HttpRequest object to fill
     HttpRequest request;
     
-    // HINT: Find end of headers (\r\n\r\n)
-    size_t header_end = request_str.find("\r\n\r\n");
-    if (header_end == std::string::npos) {
-        std::cerr << "[HttpParser] Invalid request: no header end found" << std::endl;
+    const char* ptr = data;
+    const char* end = data + length;
+    
+    // --- Parse request line: "GET /path HTTP/1.1\r\n" ---
+    
+    // Find end of request line
+    const char* line_end = find_crlf(ptr, end - ptr);
+    if (!line_end) return std::nullopt;
+    
+    // Find method (first space)
+    const char* sp1 = static_cast<const char*>(memchr(ptr, ' ', line_end - ptr));
+    if (!sp1) return std::nullopt;
+    
+    request.method.assign(ptr, sp1 - ptr);
+    
+    // Find path (second space)
+    const char* path_start = sp1 + 1;
+    const char* sp2 = static_cast<const char*>(memchr(path_start, ' ', line_end - path_start));
+    if (!sp2) return std::nullopt;
+    
+    request.path.assign(path_start, sp2 - path_start);
+    
+    // Version (rest of line)
+    const char* ver_start = sp2 + 1;
+    request.version.assign(ver_start, line_end - ver_start);
+    
+    // Validate minimum fields
+    if (request.method.empty() || request.path.empty() || request.path[0] != '/') {
         return std::nullopt;
     }
     
-    // HINT: Extract headers section (everything before \r\n\r\n)
-    std::string headers_section = request_str.substr(0, header_end);
+    // Move past \r\n
+    ptr = line_end + 2;
     
-    // HINT: Extract body (everything after \r\n\r\n)
-    if (header_end + 4 < length) {
-        request.body = request_str.substr(header_end + 4);
-    }
-    
-    // HINT: Split headers by \r\n to get individual lines
-    std::istringstream stream(headers_section);
-    std::string line;
-    bool first_line = true;
-    
-    while (std::getline(stream, line)) {
-        // Remove \r if present
-        if (!line.empty() && line.back() == '\r') {
-            line.pop_back();
+    // --- Parse headers ---
+    while (ptr < end - 1) {
+        // Check for blank line (end of headers)
+        if (ptr[0] == '\r' && ptr[1] == '\n') {
+            ptr += 2;  // Skip past \r\n
+            break;
         }
         
-        if (line.empty()) {
-            continue;
+        // Find end of this header line
+        const char* hdr_end = find_crlf(ptr, end - ptr);
+        if (!hdr_end) break;
+        
+        // Find colon separator
+        const char* colon = static_cast<const char*>(memchr(ptr, ':', hdr_end - ptr));
+        if (colon) {
+            // Header name: ptr to colon
+            std::string name(ptr, colon - ptr);
+            
+            // Header value: after colon, skip whitespace
+            const char* val_start = colon + 1;
+            while (val_start < hdr_end && *val_start == ' ') val_start++;
+            
+            // Trim trailing whitespace
+            const char* val_end = hdr_end;
+            while (val_end > val_start && (val_end[-1] == ' ' || val_end[-1] == '\t')) val_end--;
+            
+            request.headers[std::move(name)].assign(val_start, val_end - val_start);
         }
         
-        // HINT: First line is request line (GET /path HTTP/1.1)
-        if (first_line) {
-            if (!parse_request_line(line, request)) {
-                return std::nullopt;
-            }
-            first_line = false;
-        } else {
-            // HINT: Remaining lines are headers
-            if (!parse_header(line, request)) {
-                std::cerr << "[HttpParser] Failed to parse header: " << line << std::endl;
-                // Continue parsing other headers even if one fails
-            }
-        }
+        ptr = hdr_end + 2;  // Move past \r\n
     }
     
-    // HINT: Validate that we got the required fields
-    if (request.method.empty() || request.path.empty() || request.version.empty()) {
-        std::cerr << "[HttpParser] Incomplete request line" << std::endl;
-        return std::nullopt;
+    // --- Extract body (remaining data after headers) ---
+    if (ptr < end) {
+        request.body.assign(ptr, end - ptr);
     }
     
     return request;
 }
 
+// These are no longer used — parsing is done inline in parse()
+// Keep them for API compatibility but they're dead code
 bool HttpParser::parse_request_line(const std::string& line, HttpRequest& request) {
-    // TODO (Week 2): Parse request line
-    // Example: "GET /hello HTTP/1.1"
-    
-    // HINT: Use stringstream to split by spaces
-    std::istringstream iss(line);
-    std::string method, path, version;
-    
-    // HINT: Extract three parts
-    if (!(iss >> method >> path >> version)) {
-        std::cerr << "[HttpParser] Invalid request line: " << line << std::endl;
-        return false;
-    }
-    
-    // HINT: Validate method (common methods)
-    // For Week 2, accept any non-empty method
-    if (method.empty()) {
-        std::cerr << "[HttpParser] Empty method" << std::endl;
-        return false;
-    }
-    
-    // HINT: Validate path (must start with /)
-    if (path.empty() || path[0] != '/') {
-        std::cerr << "[HttpParser] Invalid path: " << path << std::endl;
-        return false;
-    }
-    
-    // HINT: Validate version
-    if (version != "HTTP/1.1" && version != "HTTP/1.0") {
-        std::cerr << "[HttpParser] Unsupported HTTP version: " << version << std::endl;
-        // Don't fail - just warn
-    }
-    
-    // HINT: Store parsed values
-    request.method = method;
-    request.path = path;
-    request.version = version;
-    
     return true;
 }
 
 bool HttpParser::parse_header(const std::string& line, HttpRequest& request) {
-    // TODO (Week 2): Parse header line
-    // Example: "Host: localhost:5627"
-    
-    // HINT: Find the ": " separator
-    size_t colon_pos = line.find(':');
-    
-    if (colon_pos == std::string::npos) {
-        std::cerr << "[HttpParser] Invalid header (no colon): " << line << std::endl;
-        return false;
-    }
-    
-    // HINT: Extract header name (before colon)
-    std::string name = line.substr(0, colon_pos);
-    name = trim(name);
-    
-    // HINT: Extract header value (after colon)
-    std::string value;
-    if (colon_pos + 1 < line.length()) {
-        value = line.substr(colon_pos + 1);
-        value = trim(value);
-    }
-    
-    // HINT: Store in headers map
-    if (!name.empty()) {
-        request.headers[name] = value;
-    }
-    
     return true;
 }
 
 std::string HttpParser::trim(const std::string& str) {
-    // TODO (Week 2): Trim whitespace from both ends
-    
-    if (str.empty()) {
-        return str;
-    }
-    
-    // HINT: Find first non-whitespace character
+    if (str.empty()) return str;
     size_t start = 0;
-    while (start < str.length() && std::isspace(str[start])) {
-        start++;
-    }
-    
-    // HINT: Find last non-whitespace character
+    while (start < str.length() && std::isspace(str[start])) start++;
     size_t end = str.length();
-    while (end > start && std::isspace(str[end - 1])) {
-        end--;
-    }
-    
-    // HINT: Return substring without leading/trailing whitespace
+    while (end > start && std::isspace(str[end - 1])) end--;
     return str.substr(start, end - start);
 }
 

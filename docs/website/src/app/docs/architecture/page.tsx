@@ -30,7 +30,7 @@ export default function ArchitecturePage() {
 ├──────────────┬───────────────────────────┤
 │  Optional:   │   C++ Native Server       │
 │  N-API       │   (worker pool, epoll)    │
-│  Bridge      │   173k req/s              │
+│  Bridge      │   153k req/s              │
 └──────────────┴───────────────────────────┘`}
       />
 

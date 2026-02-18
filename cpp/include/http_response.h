@@ -71,16 +71,27 @@ public:
     HttpResponse& set_keep_alive(bool keep_alive);
     
     /**
-     * @brief Serialize response to HTTP format
-     * 
-     * Automatically adds:
-     * - Content-Length header based on body size
-     * - Server header
-     * - Connection: close header
-     * 
+     * @brief Serialize response to HTTP format (allocating version)
      * @return Complete HTTP response as string
      */
     std::string serialize() const;
+    
+    /**
+     * @brief Serialize response directly into a pre-allocated buffer (zero-alloc)
+     * 
+     * Writes the full HTTP response (status line, headers, body) into buf
+     * without any heap allocations. Uses memcpy and snprintf.
+     * 
+     * @param buf Destination buffer
+     * @param capacity Size of buffer in bytes
+     * @return Number of bytes written, or 0 if buffer too small
+     */
+    size_t serialize_to(char* buf, size_t capacity) const;
+    
+    /**
+     * @brief Reset response to default state for reuse (avoids re-construction)
+     */
+    void reset();
     
     /**
      * @brief Get status code
@@ -111,6 +122,14 @@ public:
      * @brief Print response for debugging
      */
     void print() const;
+
+    // Pre-formatted common headers (compile-time constants)
+    static constexpr const char* SERVER_HEADER = "Server: Flash/0.1\r\n";
+    static constexpr size_t SERVER_HEADER_LEN = 19; // strlen("Server: Flash/0.1\r\n")
+    static constexpr const char* CONN_KEEPALIVE = "Connection: keep-alive\r\n";
+    static constexpr size_t CONN_KEEPALIVE_LEN = 24;
+    static constexpr const char* CONN_CLOSE = "Connection: close\r\n";
+    static constexpr size_t CONN_CLOSE_LEN = 19;
 
 private:
     int status_code_;

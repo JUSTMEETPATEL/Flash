@@ -21,7 +21,6 @@
 #include "http_parser.h"
 #include "http_response.h"
 
-#include <iostream>
 #include <cstring>
 #include <stdexcept>
 #include <system_error>
@@ -110,6 +109,9 @@ HttpServer::HttpServer(uint16_t port, size_t num_workers)
     int opt = 1;
     setsockopt(socket_fd_, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
     
+    // SO_REUSEPORT: allow multiple threads/processes to accept on same port
+    setsockopt(socket_fd_, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt));
+    
     // Disable Nagle's algorithm for lower latency
     setsockopt(socket_fd_, IPPROTO_TCP, TCP_NODELAY, &opt, sizeof(opt));
     
@@ -126,8 +128,6 @@ HttpServer::~HttpServer() {
         close(socket_fd_);
         socket_fd_ = -1;
     }
-    
-    std::cout << "[HttpServer] Server destroyed" << std::endl;
 }
 
 // ============================================================================
@@ -299,6 +299,11 @@ void HttpServer::handle_connection(int client_fd) {
     int request_count = 0;
     bool keep_alive = true;
     
+    // Reuse parser and response across requests on this connection (avoid re-alloc)
+    HttpParser parser;
+    HttpResponse response;
+    char response_buf[8192];  // Stack buffer for zero-alloc serialization
+    
     // Keep-alive loop - handle multiple requests on same connection
     while (keep_alive && request_count < MAX_KEEPALIVE_REQUESTS && running_) {
         request_count++;
@@ -337,8 +342,7 @@ void HttpServer::handle_connection(int client_fd) {
         buffer[bytes_read] = '\0';  // Null terminate
         
         try {
-            // Parse HTTP request
-            HttpParser parser;
+            // Parse HTTP request (parser reused across keep-alive requests)
             auto request = parser.parse(buffer, bytes_read);
             
             if (request.has_value()) {
@@ -368,8 +372,8 @@ void HttpServer::handle_connection(int client_fd) {
                     continue;  // Skip normal response handling
                 }
                 
-                // SLOW PATH: Build response dynamically for other routes
-                HttpResponse response;
+                // DYNAMIC PATH: Build response (reusing HttpResponse object)
+                response.reset();
                 response.set_keep_alive(keep_alive);
                 
                 if (request->path.find("/users/") == 0) {
@@ -411,13 +415,16 @@ void HttpServer::handle_connection(int client_fd) {
                             .set_body("404 Not Found\nThe requested path '" + request->path + "' does not exist.");
                 }
                 
-                // Serialize and send response
-                std::string response_str = response.serialize();
-                ssize_t written = write_to_socket(client_fd, response_str.c_str(), response_str.length());
-                
-                if (written < 0) {
-                    // Write error - close connection
-                    break;
+                // Serialize directly into stack buffer (zero allocations)
+                size_t resp_len = response.serialize_to(response_buf, sizeof(response_buf));
+                if (resp_len == 0) {
+                    // Response too large for buffer — fall back to allocating path
+                    std::string response_str = response.serialize();
+                    ssize_t written = write_to_socket(client_fd, response_str.c_str(), response_str.length());
+                    if (written < 0) break;
+                } else {
+                    ssize_t written = write_to_socket(client_fd, response_buf, resp_len);
+                    if (written < 0) break;
                 }
                 
             } else {

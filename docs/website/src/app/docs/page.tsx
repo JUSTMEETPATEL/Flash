@@ -6,7 +6,7 @@ export default function DocsPage() {
     <div className="prose prose-zinc dark:prose-invert max-w-none">
       <h1>Introduction</h1>
       <p className="lead text-xl text-muted-foreground">
-        Flash is a high-performance HTTP server framework for Node.js, powered by a C++ core. It gives you <strong>Express-like simplicity</strong> with <strong>173,000 req/s performance</strong>.
+        Flash is a high-performance HTTP server framework for Node.js, powered by a C++ core. It gives you <strong>Express-like simplicity</strong> with <strong>153,000 req/s performance</strong>.
       </p>
 
       <div className="not-prose my-8 flex gap-4">
@@ -31,7 +31,7 @@ export default function DocsPage() {
 
       <div className="not-prose my-6 grid grid-cols-1 md:grid-cols-3 gap-4">
         {[
-          { title: "⚡ Fast", desc: "173k req/s — 7x faster than Express, 2x faster than Fastify." },
+          { title: "⚡ Fast", desc: "153k req/s — 6x faster than Express in raw I/O throughput." },
           { title: "✍️ Familiar", desc: "Express-like API. If you know Express, you already know Flash." },
           { title: "🔒 Type-safe", desc: "Written in TypeScript with full type definitions included." },
         ].map((item) => (

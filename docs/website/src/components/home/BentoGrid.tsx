@@ -35,7 +35,7 @@ export function BentoGrid() {
                     <div className="flex items-center gap-2">
                         <span className="w-16 text-xs text-zinc-500">Flash</span>
                         <div className="h-6 w-[90%] rounded bg-gradient-to-r from-blue-600 to-purple-600 animate-pulse"></div>
-                        <span className="text-xs font-mono text-blue-400">173k/s</span>
+                        <span className="text-xs font-mono text-blue-400">153k/s</span>
                     </div>
                     <div className="flex items-center gap-2">
                         <span className="w-16 text-xs text-zinc-500">Fastify</span>

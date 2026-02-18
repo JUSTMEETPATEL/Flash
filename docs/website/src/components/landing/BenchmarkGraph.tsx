@@ -17,13 +17,13 @@ import { motion } from "framer-motion";
 const dataReqs = [
   { name: "Express", value: 25088, color: "#374151" },
   { name: "Fastify", value: 78000, color: "#374151" },
-  { name: "Flash", value: 173244, color: "#EAB308" }, // Amber-500
+  { name: "Flash", value: 152988, color: "#EAB308" }, // Amber-500
 ];
 
 const dataLatency = [
   { name: "Express", value: 3.7, color: "#374151" },
   { name: "Fastify", value: 0.8, color: "#374151" },
-  { name: "Flash", value: 0.08, color: "#EAB308" },
+  { name: "Flash", value: 0.084, color: "#EAB308" },
 ];
 
 export function BenchmarkGraph() {
